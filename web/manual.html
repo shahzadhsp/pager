@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Utilizador - Aplicação IoT LoRa</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #3498db;
+            margin-right: 15px;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manual de Utilizador da Aplicação IoT LoRa</h1>
+
+        <nav class="nav">
+            <a href="#introducao">Introdução</a> |
+            <a href="#primeiros-passos">Primeiros Passos</a> |
+            <a href="#funcionalidades">Funcionalidades</a> |
+            <a href="#admin">Admin</a> |
+            <a href="#faq">FAQ</a>
+        </nav>
+
+        <section id="introducao">
+            <h2>1. Introdução</h2>
+            <p>Bem-vindo à aplicação IoT LoRa! Esta aplicação foi desenhada para provisionar, monitorizar e interagir com dispositivos LoRaWAN de forma remota e intuitiva. Com ela, pode gerir múltiplos dispositivos, visualizar dados em tempo real, organizar dispositivos em grupos e comunicar com outros utilizadores da plataforma.</p>
+            <p>A plataforma utiliza Firebase para comunicação em tempo real, garantindo que tem sempre a informação mais atualizada dos seus sensores e atuadores.</p>
+        </section>
+
+        <section id="primeiros-passos">
+            <h2>2. Primeiros Passos</h2>
+            <h3>2.1. Registo de Conta e Login</h3>
+            <p>Para começar a usar a aplicação, precisa de criar uma conta. Na tela inicial, selecione <strong>"Registar"</strong> e preencha os seus dados. Após o registo, utilize as suas credenciais para fazer <strong>login</strong> na aplicação.</p>
+            <h3>2.2. Aceitação dos Termos Legais</h3>
+            <p>No seu primeiro login, será apresentado um documento com os termos de serviço e a política de privacidade. É necessário ler e aceitar estes termos para continuar a usar a aplicação.</p>
+             <h3>2.3. Onboarding</h3>
+            <p>De seguida, ser-lhe-á apresentado um breve tutorial sobre as principais funcionalidades da aplicação.</p>
+        </section>
+
+        <section id="funcionalidades">
+            <h2>3. Funcionalidades Principais</h2>
+            
+            <h3>3.1. Dashboard (Ecrã Principal)</h3>
+            <p>Após o login, o Dashboard oferece uma visão geral do seu sistema:</p>
+            <ul>
+                <li><strong>Cartões de Resumo:</strong> Mostram informações rápidas, como o número total de dispositivos, dispositivos online e alertas.</li>
+                <li><strong>Gráficos de Atividade:</strong> Visualizam dados recentes dos seus dispositivos, permitindo uma análise rápida de tendências.</li>
+            </ul>
+
+            <h3>3.2. Gestão de Dispositivos</h3>
+            <p>A secção de dispositivos é o coração da aplicação.</p>
+            <ul>
+                <li><strong>Listar Dispositivos:</strong> Navegue até ao ecrã "Dispositivos" para ver todos os seus dispositivos registados, juntamente com o seu estado atual (online/offline).</li>
+                <li><strong>Provisionar Novo Dispositivo:</strong> Clique no botão de adicionar (+) para registar um novo dispositivo na plataforma. Precisará de inserir as informações relevantes do dispositivo, como o seu identificador único.</li>
+                <li><strong>Detalhes do Dispositivo:</strong> Toque num dispositivo da lista para aceder ao seu ecrã de detalhes. Aqui pode:
+                    <ul>
+                        <li>Ver dados históricos e em tempo real (temperatura, humidade, etc.).</li>
+                        <li>Visualizar a localização do dispositivo num mapa.</li>
+                        <li>Enviar comandos de downlink para o dispositivo (ex: ligar um atuador, pedir uma leitura).</li>
+                    </ul>
+                </li>
+                 <li><strong>Visualização de Dados:</strong> Visualize gráficos e relatórios detalhados sobre os dados enviados pelos dispositivos.</li>
+            </ul>
+
+            <h3>3.3. Gestão de Grupos</h3>
+            <p>Organize os seus dispositivos e utilizadores em grupos para uma gestão mais eficiente.</p>
+            <ul>
+                <li><strong>Criar e Ver Grupos:</strong> Crie novos grupos, adicione membros (utilizadores) e associe dispositivos.</li>
+                <li><strong>Comunicação em Grupo:</strong> Cada grupo tem um chat dedicado para facilitar a comunicação entre os membros responsáveis por esses dispositivos.</li>
+            </ul>
+
+            <h3>3.4. Chat</h3>
+            <p>Comunique diretamente com outros utilizadores da plataforma ou dentro dos seus grupos. A secção de chat permite trocas de mensagens em tempo real para coordenar ações ou discutir eventos.</p>
+
+            <h3>3.5. Definições</h3>
+            <p>No ecrã de definições, pode:</p>
+            <ul>
+                <li><strong>Gerir o seu Perfil:</strong> Atualizar as suas informações pessoais.</li>
+                <li><strong>Alterar o Tema:</strong> Escolha entre o tema claro (light) e escuro (dark) para a interface da aplicação.</li>
+                <li><strong>Aceder à Ajuda:</strong> Encontre a página de FAQ e um link para este manual completo.</li>
+            </ul>
+        </section>
+        
+        <section id="admin">
+            <h2>4. Funcionalidades de Administrador</h2>
+            <p>Se for um utilizador com permissões de administrador, terá acesso a funcionalidades adicionais:</p>
+            <ul>
+                <li><strong>Dashboard de Admin:</strong> Uma visão geral de todos os utilizadores e dispositivos na plataforma.</li>
+                <li><strong>Gestão de Utilizadores:</strong> Capacidade de ver, editar e gerir todos os utilizadores registados.</li>
+                <li><strong>Mapa Global:</strong> Visualizar a localização de todos os dispositivos da plataforma num único mapa.</li>
+                <li><strong>Edição de Documentos Legais:</strong> Atualizar os Termos de Serviço e a Política de Privacidade para todos os utilizadores.</li>
+            </ul>
+        </section>
+
+        <section id="faq">
+            <h2>5. Perguntas Frequentes (FAQ)</h2>
+            <dl>
+                <dt><strong>P: Para que serve esta aplicação?</strong></dt>
+                <dd>R: Serve para monitorizar e controlar dispositivos LoRaWAN remotamente, visualizar dados, gerir equipamentos e comunicar com outros utilizadores da plataforma.</dd>
+
+                <dt><strong>P: Como adiciono um novo dispositivo?</strong></dt>
+                <dd>R: Vá ao ecrã "Dispositivos" (geralmente um ícone de chip na barra de navegação) e clique no botão de adicionar (ícone "+"). Preencha a informação solicitada e guarde.</dd>
+
+                <dt><strong>P: O meu dispositivo aparece como 'offline'. O que devo fazer?</strong></dt>
+                <dd>R: Verifique os seguintes pontos:
+                    <ol>
+                        <li>Se o dispositivo físico está ligado e com bateria.</li>
+                        <li>Se está dentro do alcance de um gateway da rede.</li>
+                        <li>Se as credenciais de registo na aplicação correspondem às do dispositivo.</li>
+                    </ol>
+                </dd>
+                
+                <dt><strong>P: Posso alterar o tema da aplicação?</strong></dt>
+                <dd>R: Sim. Vá a "Definições", onde encontrará uma opção para alternar entre o modo claro e escuro.</dd>
+
+                <dt><strong>P: Como posso ver os dados históricos de um sensor?</strong></dt>
+                <dd>R: Navegue para a lista de dispositivos, selecione o dispositivo desejado e aceda ao ecrã de "Detalhes". Aí encontrará gráficos e registos com os dados históricos.</dd>
+                
+                <dt><strong>P: O que são os grupos?</strong></dt>
+                <dd>R: Os grupos servem para organizar dispositivos e utilizadores. Isto é útil para empresas ou equipas que gerem múltiplos sensores em locais diferentes, permitindo uma gestão e comunicação focada.</dd>
+            </dl>
+        </section>
+    </div>
+</body>
+</html>
