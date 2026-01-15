@@ -194,5 +194,13 @@
     "devicesAndGatewaysMap": "Devices and Gateways Map",
     "updatingData": "Updating data...",
     "privacyPolicy": "Privacy Policy",
-    "privacyPolicySubtitle": "Read our privacy policy"
+    "privacyPolicySubtitle": "Read our privacy policy",
+    "profile": "Profile",
+    "profileSubtitle": "Profile Subtitle",
+    "profileData": "Profile data not found",
+    "role": "Role",
+    "lastLogin": "Last Login",
+    "userNotLoggedIn": "User not logged in",
+    "userNotAuthenticated": "User not authenticated.",
+    "unkownGroup": "Unknown Group"
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:myapp/models/user_group.dart';
@@ -43,13 +44,39 @@ class GroupService with ChangeNotifier {
     await _dbRef.update(multiPathUpdates);
   }
 
+  // Future<Map<String, String>> getGroupMembers(String groupId) async {
+  //   final snapshot = await _dbRef.child('groups/$groupId/members').get();
+  //   if (snapshot.exists && snapshot.value != null) {
+  //     final data = Map<String, dynamic>.from(snapshot.value as Map);
+  //     return data.map((key, value) => MapEntry(key, value.toString()));
+  //   }
+  //   return {};
+  // }
   Future<Map<String, String>> getGroupMembers(String groupId) async {
     final snapshot = await _dbRef.child('groups/$groupId/members').get();
-    if (snapshot.exists && snapshot.value != null) {
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
-      return data.map((key, value) => MapEntry(key, value.toString()));
-    }
-    return {};
+
+    if (!snapshot.exists || snapshot.value == null) return {};
+
+    final raw = Map<String, dynamic>.from(snapshot.value as Map);
+    final Map<String, String> result = {};
+
+    raw.forEach((key, value) {
+      if (value is String) {
+        // ✅ Correct case: email : "member"
+        result[key] = value;
+      } else if (value is Map) {
+        // ✅ Nested case: uid : { status: "member", email: "a@b.com" }
+        final map = Map<String, dynamic>.from(value);
+        final email = map['email']?.toString();
+        final status = map['status']?.toString() ?? 'member';
+
+        if (email != null) {
+          result[email] = status;
+        }
+      }
+    });
+
+    return result;
   }
 
   Future<void> removeMemberFromGroup(String groupId, String memberId) async {
@@ -63,7 +90,7 @@ class GroupService with ChangeNotifier {
   }
 
   Future<void> leaveGroup(String groupId) async {
-    if (_userId == null) throw Exception("Utilizador não autenticado.");
+    if (_userId == null) throw Exception("userNotAuthenticated".tr());
     await removeMemberFromGroup(groupId, _userId!);
   }
 

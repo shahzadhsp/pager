@@ -36,15 +36,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     super.dispose();
   }
 
-  // void _toggleMemberSelection(String id) {
-  //   setState(() {
-  //     if (_selectedMemberIds.contains(id)) {
-  //       _selectedMemberIds.remove(id);
-  //     } else {
-  //       _selectedMemberIds.add(id);
-  //     }
-  //   });
-  // }
   void _toggleMemberSelection(String id) {
     log('Tapped ID: $id'); // 👈 DEBUG
 
@@ -59,38 +50,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     log('Selected: $_selectedMemberIds');
   }
 
-  // Future<void> _createGroup() async {
-  //   if (_groupNameController.text.isEmpty ||
-  //       _selectedMemberIds.isEmpty ||
-  //       _isCreating) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('pleaseGiveTheGroupName'.tr())));
-  //     return;
-  //   }
-  //   setState(() {
-  //     _isCreating = true;
-  //   });
-  //   try {
-  //     final groupService = context.read<GroupService>();
-  //     await groupService.createGroup(
-  //       _groupNameController.text.trim(),
-  //       _selectedMemberIds.toList(),
-  //     );
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('pleaseGiveTheGroupName'.tr())));
-  //     context.pop(); // Voltar para o ecrã anterior
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('${'errorCreatingGroup'.tr()} $e')),
-  //     );
-  //   } finally {
-  //     setState(() {
-  //       _isCreating = false;
-  //     });
-  //   }
-  // }
   Future<void> _createGroup() async {
     if (_groupNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(

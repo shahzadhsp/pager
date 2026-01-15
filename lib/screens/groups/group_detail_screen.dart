@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 import '../../services/admin_service.dart';
@@ -37,20 +38,20 @@ class GroupDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Secção de Membros
+          //Members Section
           Text(
             '${'members'.tr()} (${members.length})',
             style: theme.textTheme.titleLarge,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildMemberList(members, theme),
-          const Divider(height: 32),
+          Divider(height: 32.h),
           // Secção de Dispositivos
           Text(
             '${'devices'.tr()} (${devices.length})',
             style: theme.textTheme.titleLarge,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildDeviceList(devices, theme),
         ],
       ),

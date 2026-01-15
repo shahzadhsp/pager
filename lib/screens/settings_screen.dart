@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/providers/theme_provider.dart';
 import 'package:myapp/screens/faq_screen.dart';
 import 'package:myapp/screens/language/language_setting_screen.dart';
+import 'package:myapp/screens/profile/profile_screen.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -118,6 +119,21 @@ class SettingsScreen extends StatelessWidget {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text('Add This later')));
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.person_outline),
+          title: Text('profile'.tr()),
+          subtitle: Text('profileSubtitle'.tr()),
+          onTap: () {
+            // Profile screen ya future action
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text('Profile screen coming soon')),
+            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
           },
         ),
 

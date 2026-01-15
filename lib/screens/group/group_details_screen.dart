@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
@@ -42,27 +44,47 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   Future<List<GroupMember>> _loadMembers() async {
     if (!mounted) return [];
-    final groupService = Provider.of<GroupService>(context, listen: false);
-    final adminService = Provider.of<AdminService>(context, listen: false);
 
-    final membersMap = await groupService.getGroupMembers(widget.groupId);
+    final groupService = context.read<GroupService>();
+    final adminService = context.read<AdminService>();
+
+    // Get members from Firebase
+    final Map<String, String> membersMap = await groupService.getGroupMembers(
+      widget.groupId,
+    );
 
     final List<GroupMember> members = [];
-    for (var entry in membersMap.entries) {
-      final id = entry.key;
-      final status = entry.value;
-      final name = adminService.getNameForId(id);
-      final isDevice = adminService.devices.any((d) => d.id == id);
+
+    for (final entry in membersMap.entries) {
+      final String email = entry.key; // ✅ EMAIL
+      final String status = entry.value; // member / pending
+
+      // Try to get user name from admin users via email
+      final user = adminService.users.where((u) => u.email == email).toList();
+
+      final String name = user.isNotEmpty ? user.first.name : email;
+
       members.add(
-        GroupMember(id: id, name: name, status: status, isDevice: isDevice),
+        GroupMember(
+          id: email, // ✅ email as ID
+          name: name, // show name if found, else email
+          status: status,
+          isDevice: false, // ❌ no devices anymore
+        ),
       );
+      log('check the email');
+      log('$email');
+      log('check the name');
+      log('$name');
+      log('check the status');
+      log('$status');
     }
 
+    // Sort alphabetically by name/email
     members.sort(
-      (a, b) => a.isDevice == b.isDevice
-          ? a.name.compareTo(b.name)
-          : (a.isDevice ? 1 : -1),
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
     );
+
     return members;
   }
 
@@ -84,7 +106,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${member.name} ${'wasRemoved'.tr()}'),
-
             backgroundColor: Colors.green,
           ),
         );
@@ -191,7 +212,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('thisGroupNoHasMembers').tr(),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ElevatedButton(
                     onPressed: () => context.go('/'),
                     child: Text('backToHome').tr(),
@@ -208,15 +229,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           return ListView(
             children: [
               if (userMembers.isNotEmpty)
-                _buildMemberList(context, 'Utilizadores', userMembers),
+                _buildMemberList(context, 'users'.tr(), userMembers),
               if (deviceMembers.isNotEmpty)
-                _buildMemberList(context, 'Dispositivos', deviceMembers),
-              const Divider(height: 32),
+                _buildMemberList(context, 'devices'.tr(), deviceMembers),
+              Divider(height: 32.h),
               ListTile(
                 leading: const Icon(Icons.person_add, color: Colors.green),
                 title: Text('addMember'.tr()),
                 onTap: () async {
                   // Navega e depois atualiza a lista quando voltar
+                  // Navigate and then update the list when you return.
                   final result = await context.push(
                     '/chat/${widget.groupId}/details/add-members',
                   );
@@ -269,7 +291,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               leading: Icon(
                 member.isDevice ? Icons.sensors : Icons.person_outline,
               ),
-              title: Text(member.name),
+              title: Text(member.id),
               subtitle: member.status == 'pending'
                   ? Text(
                       'pending'.tr(),

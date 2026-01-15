@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/models/app_user.dart';
+import 'package:myapp/services/user_service.dart';
 import 'package:provider/provider.dart';
 import '../../services/group_service.dart';
-import '../../services/admin_service.dart';
 
 class AddMembersScreen extends StatefulWidget {
   final String groupId;
@@ -100,9 +101,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final adminService = context.watch<AdminService>();
-    final allUsers = adminService.users;
-    final allDevices = adminService.devices;
+    final userService = context.read<UserService>();
 
     return Scaffold(
       appBar: AppBar(
@@ -137,40 +136,34 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                 ),
                 const Divider(height: 1),
                 Expanded(
-                  child: ListView(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Utilizadores',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                      ...allUsers.map(
-                        (user) => _buildMemberTile(
-                          user.id,
-                          user.name,
-                          Icons.person,
-                          _existingMemberIds.contains(user.id),
-                        ),
-                      ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'devices'.tr(),
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                      ...allDevices.map(
-                        (device) => _buildMemberTile(
-                          device.id,
-                          adminService.getNameForId(device.id),
-                          Icons.sensors,
-                          _existingMemberIds.contains(device.id),
-                        ),
-                      ),
-                    ],
+                  child: StreamBuilder<List<AppUser>>(
+                    stream: userService.usersStream(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final users = snapshot.data!;
+
+                      if (users.isEmpty) {
+                        return Center(child: Text('noUsersFound'.tr()));
+                      }
+
+                      return ListView(
+                        children: users.map((user) {
+                          final isExisting = _existingMemberIds.contains(
+                            user.id,
+                          );
+
+                          return _buildMemberTile(
+                            user.id,
+                            user.email, // 👈 EMAIL SHOW HO GI
+                            Icons.person,
+                            isExisting,
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -185,19 +178,19 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     bool isExisting,
   ) {
     final isSelected = _selectedMemberIds.contains(id) || isExisting;
+
     return ListTile(
       leading: CircleAvatar(child: Icon(icon)),
-      title: Text(name),
+      title: Text(name), // 👈 email / name
       subtitle: isExisting
-          ? Text('alreadyMembers'.tr(), style: TextStyle(color: Colors.grey))
+          ? Text(
+              'alreadyMembers'.tr(),
+              style: const TextStyle(color: Colors.grey),
+            )
           : null,
       trailing: Checkbox(
         value: isSelected,
-        onChanged: isExisting
-            ? null
-            : (bool? value) {
-                _toggleMemberSelection(id);
-              },
+        onChanged: isExisting ? null : (_) => _toggleMemberSelection(id),
       ),
       onTap: isExisting ? null : () => _toggleMemberSelection(id),
     );

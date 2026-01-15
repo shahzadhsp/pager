@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _validatePasswordAndNavigate(BuildContext dialogContext) {
     final enteredPassword = _passwordController.text;
-    Navigator.of(dialogContext).pop(); // Fechar o diálogo primeiro
+    Navigator.of(dialogContext).pop(); //
     if (enteredPassword == _adminPassword) {
       // Navegar para o novo dashboard de admin
       context.push('/admin');
