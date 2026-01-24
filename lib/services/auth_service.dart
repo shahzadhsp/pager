@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/screens/home_screen.dart';
@@ -108,7 +109,7 @@ class AuthService {
       // 🔥 Firebase sign-in
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
-
+      await saveUserToDatabase(userCredential.user!);
       log('✅ Google Sign-In successful');
       Navigator.push(
         context,
@@ -177,6 +178,25 @@ class AuthService {
         error: e,
         stackTrace: s,
       );
+    }
+  }
+
+  // save to user in the database
+  Future<void> saveUserToDatabase(User user) async {
+    final ref = FirebaseDatabase.instance.ref('users/${user.uid}');
+
+    final snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      await ref.set({
+        'email': user.email,
+        'role': 'user',
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+        'lastLogin': DateTime.now().millisecondsSinceEpoch,
+      });
+    } else {
+      // Update last login
+      await ref.update({'lastLogin': DateTime.now().millisecondsSinceEpoch});
     }
   }
 }

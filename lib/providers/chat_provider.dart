@@ -355,6 +355,7 @@
 // }
 
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -709,5 +710,33 @@ class ChatProvider with ChangeNotifier {
       );
       rethrow;
     }
+  }
+
+  // edit message
+  Future<void> editMessage({
+    required String conversationId,
+    required String messageId,
+    required String newText,
+  }) async {
+    if (_currentUser == null || newText.trim().isEmpty) return;
+
+    final msgRef = _dbRef.child('chats/$conversationId/messages/$messageId');
+
+    await msgRef.update({
+      'text': newText.trim(),
+      'editedAt': ServerValue.timestamp,
+    });
+  }
+
+  // delete message
+  Future<void> deleteMessage({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    if (_currentUser == null) return;
+
+    final msgRef = _dbRef.child('chats/$conversationId/messages/$messageId');
+
+    await msgRef.update({'text': 'messageDeleted'.tr(), 'isDeleted': true});
   }
 }

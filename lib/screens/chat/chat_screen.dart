@@ -30,6 +30,43 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void _showEditDialog(ChatMessageModel message) {
+    final controller = TextEditingController(text: message.text);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('editMessage'.tr()),
+        content: TextField(
+          controller: controller,
+          maxLines: null,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            child: Text('cancel'.tr()),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: Text('save'.tr()),
+            onPressed: () {
+              final newText = controller.text.trim();
+              if (newText.isEmpty) return;
+
+              context.read<ChatProvider>().editMessage(
+                conversationId: widget.conversationId,
+                messageId: message.messageId,
+                newText: newText,
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void _markAsRead() {
     if (mounted) {
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
@@ -78,7 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         centerTitle: true,
         actions: [
-          // Adicionar botão de detalhes do grupo se for um grupo
+          // Add group details button if it is a group
           if (isGroupChat)
             IconButton(
               icon: const Icon(Icons.info_outline),
@@ -165,10 +202,50 @@ class _ChatScreenState extends State<ChatScreen> {
                         children: [
                           if (showDateSeparator)
                             _DateSeparator(dateTime: message.dateTime),
-                          _MessageBubble(
-                            message: message,
-                            isMe: isMe,
-                            senderName: senderName,
+                          GestureDetector(
+                            onLongPress: isMe
+                                ? () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (_) => Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            leading: Icon(Icons.edit),
+                                            title: Text('edit'.tr()),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              _showEditDialog(message);
+                                            },
+                                          ),
+                                          ListTile(
+                                            leading: Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            title: Text('delete'.tr()),
+                                            onTap: () {
+                                              context
+                                                  .read<ChatProvider>()
+                                                  .deleteMessage(
+                                                    conversationId:
+                                                        widget.conversationId,
+                                                    messageId:
+                                                        message.messageId,
+                                                  );
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            child: _MessageBubble(
+                              message: message,
+                              isMe: isMe,
+                              senderName: senderName,
+                            ),
                           ),
                         ],
                       );
@@ -197,15 +274,18 @@ class _DateSeparator extends StatelessWidget {
 
   const _DateSeparator({required this.dateTime});
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final dateToCompare = DateTime(date.year, date.month, date.day);
 
-    if (dateToCompare == today) return 'Hoje';
-    if (dateToCompare == yesterday) return 'Ontem';
-    return DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(date);
+    if (dateToCompare == today) return 'today'.tr();
+    if (dateToCompare == yesterday) return 'yesterday'.tr();
+
+    final locale = context.locale.toString();
+
+    return DateFormat.yMMMMd(locale).format(date);
   }
 
   @override
@@ -229,8 +309,9 @@ class _DateSeparator extends StatelessWidget {
             ),
           ],
         ),
+
         child: Text(
-          _formatDate(dateTime),
+          _formatDate(context, dateTime),
           style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onSurfaceVariant,
@@ -293,75 +374,12 @@ class _MessageBubble extends StatelessWidget {
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      // child: Container(
-      //   constraints: BoxConstraints(
-      //     maxWidth: MediaQuery.of(context).size.width * 0.78,
-      //   ),
-      //   margin: const EdgeInsets.symmetric(vertical: 4.0),
-      //   padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-      //   decoration: BoxDecoration(
-      //     color: bubbleColor,
-      //     borderRadius: BorderRadius.only(
-      //       topLeft: Radius.circular(12.r),
-      //       topRight: Radius.circular(12.r),
-      //       bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
-      //       bottomRight: isMe ? Radius.zero : const Radius.circular(12),
-      //     ),
-      //     boxShadow: [
-      //       BoxShadow(
-      //         color: Colors.black.withOpacity(0.07),
-      //         blurRadius: 3,
-      //         offset: const Offset(1, 2),
-      //       ),
-      //     ],
-      //   ),
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: [
-      //       if (showSenderName)
-      //         Padding(
-      //           padding: const EdgeInsets.only(bottom: 4.0),
-      //           child: Text(
-      //             senderName!,
-      //             style: theme.textTheme.labelMedium?.copyWith(
-      //               fontWeight: FontWeight.bold,
-      //               color:
-      //                   Colors.primaries[senderName.hashCode %
-      //                       Colors.primaries.length],
-      //             ),
-      //           ),
-      //         ),
-      //       Text(
-      //         message.text,
-      //         style: theme.textTheme.bodyLarge?.copyWith(
-      //           color: isMe ? Colors.black : textColor,
-      //           fontSize: 16,
-      //         ),
-      //       ),
-      //       const SizedBox(height: 4),
-      //       Row(
-      //         mainAxisSize: MainAxisSize.min,
-      //         mainAxisAlignment: MainAxisAlignment.end,
-      //         children: [
-      //           Text(
-      //             timeStr,
-      //             style: theme.textTheme.bodySmall?.copyWith(
-      //               color: (isMe ? Colors.white : textColor).withOpacity(0.7),
-      //             ),
-      //           ),
-      //           const SizedBox(width: 4),
-      //           _buildReadStatus(context, message),
-      //         ],
-      //       ),
-      //     ],
-      //   ),
-      // ),
       child: Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6.w),
         decoration: BoxDecoration(
           color: isMe ? const Color(0xFFDCF8C6) : Colors.white,
           borderRadius: BorderRadius.only(
@@ -395,24 +413,60 @@ class _MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
-
             // 💬 Message text
+            // Text(
+            //   message.text,
+            //   style: theme.textTheme.bodyLarge?.copyWith(
+            //     color: Colors.black87,
+            //     fontSize: 15.5,
+            //     height: 1.3,
+            //   ),
+            // ),
             Text(
-              message.text,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: Colors.black87,
-                fontSize: 15.5,
-                height: 1.3,
+              message.status == 'deleted'
+                  ? 'This message was deleted'
+                  : message.text,
+              style: TextStyle(
+                fontStyle: message.status == 'deleted'
+                    ? FontStyle.italic
+                    : FontStyle.normal,
+                color: message.status == 'deleted'
+                    ? Colors.grey
+                    : Colors.black87,
               ),
             ),
-
-            const SizedBox(height: 2),
-
+            SizedBox(height: 2.h),
             // ⏰ Time + ✔✔ Read status (Bottom Right)
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: [
+            //     Text(
+            //       timeStr,
+            //       style: theme.textTheme.bodySmall?.copyWith(
+            //         fontSize: 11,
+            //         color: Colors.grey.shade600,
+            //       ),
+            //     ),
+            //     SizedBox(width: 4.w),
+            //     _buildReadStatus(context, message),
+            //   ],
+            // ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (message.edited)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Text(
+                      'edited'.tr(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
                 Text(
                   timeStr,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -420,7 +474,7 @@ class _MessageBubble extends StatelessWidget {
                     color: Colors.grey.shade600,
                   ),
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4.w),
                 _buildReadStatus(context, message),
               ],
             ),

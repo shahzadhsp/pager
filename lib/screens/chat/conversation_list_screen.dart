@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/providers/theme_provider.dart';
 import 'package:myapp/screens/groups/group_detail_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
@@ -16,7 +17,7 @@ class ConversationListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchQuery = context.watch<SearchProvider>().query.toLowerCase();
-
+    final isDark = context.watch<ThemeProvider>().isDark;
     return Scaffold(
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
@@ -33,18 +34,21 @@ class ConversationListScreen extends StatelessWidget {
           if (filteredConversations.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  searchQuery.isEmpty
-                      ? 'noConversation'.tr()
-                      : 'noResult'.tr(args: [searchQuery]),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.color?.withOpacity(0.6),
-                  ),
+                padding: EdgeInsets.all(24.0.r),
+                child: Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return Text(
+                      searchQuery.isEmpty
+                          ? 'noConversation'.tr()
+                          : 'noResult'.tr(args: [searchQuery]),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: themeProvider.isDark
+                            ? Colors.grey
+                            : Colors.black,
+                      ),
+                    );
+                  },
                 ),
               ),
             );
@@ -72,7 +76,7 @@ class ConversationListScreen extends StatelessWidget {
                   mini: true,
                   child: const Icon(Icons.group_add),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 FloatingActionButton(
                   onPressed: () => context.push('/scan'),
                   tooltip: 'New Conversation',
@@ -93,7 +97,7 @@ class ConversationListScreen extends StatelessWidget {
     return ListView.separated(
       itemCount: conversations.length,
       separatorBuilder: (context, index) =>
-          const Divider(height: 1, indent: 80, color: Colors.transparent),
+          Divider(height: 1.h, indent: 80.h, color: Colors.transparent),
       itemBuilder: (context, index) {
         final conversation = conversations[index];
         final theme = Theme.of(context);

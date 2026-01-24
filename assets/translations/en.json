@@ -202,5 +202,10 @@
     "lastLogin": "Last Login",
     "userNotLoggedIn": "User not logged in",
     "userNotAuthenticated": "User not authenticated.",
-    "unkownGroup": "Unknown Group"
+    "unkownGroup": "Unknown Group",
+    "forgetPassword": "Forget Password",
+    "emailSent": "Password reset email sent Please check your inbox or spam folder.",
+    "enterYourEmail": "Enter your email to receive password reset instructions.",
+    "today": "Today",
+    "yesterday": "Yesterday"
 }

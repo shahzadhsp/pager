@@ -37,18 +37,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     super.dispose();
   }
 
-  // void _initSpeech() async {
-  //   try {
-  //     _speechAvailable = await _speechToText.initialize(
-  //       onError: (error) => print('Speech recognition error: $error'),
-  //       onStatus: (status) => print('Speech recognition status: $status'),
-  //     );
-  //     if (mounted) setState(() {});
-  //   } catch (e) {
-  //     print("Error initializing speech to text: $e");
-  //     setState(() => _speechAvailable = false);
-  //   }
-  // }
   void _initSpeech() async {
     _speechAvailable = await _speechToText.initialize(
       onError: (error) {
@@ -69,46 +57,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (mounted) setState(() {});
   }
 
-  // Future<void> _startListening() async {
-  //   if (!_speechAvailable) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('voiceRecognition'.tr())));
-  //     return;
-  //   }
-  //   var microphoneStatus = await Permission.microphone.request();
-  //   if (!microphoneStatus.isGranted) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('microphonePermission'.tr())));
-  //     return;
-  //   }
-  //   if (_isListening) return;
-  //   await _speechToText.listen(
-  //     onResult: (result) {
-  //       if (mounted) {
-  //         setState(() {
-  //           _textController.text = result.recognizedWords;
-  //           // Move o cursor para o final do texto
-  //           _textController.selection = TextSelection.fromPosition(
-  //             TextPosition(offset: _textController.text.length),
-  //           );
-  //         });
-  //       }
-  //     },
-  //     localeId: 'pt_BR',
-  //     // Define o idioma para Português do Brasil
-  //     // Set the language to Brazilian Portuguese.
-  //     listenFor: const Duration(seconds: 10),
-  //     // Limite de tempo para a gravação
-  //     // Time limit for the recording.
-  //     pauseFor: const Duration(seconds: 3),
-  //     // Pausa após 3s de silêncio
-  //     // Pause after 3 seconds of silence.”
-  //   );
-  //   if (mounted) setState(() => _isListening = true);
-  // }
-
   Future<void> _startListening() async {
     if (_isListening) return;
 
@@ -126,12 +74,20 @@ class _ChatInputFieldState extends State<ChatInputField> {
     setState(() => _isListening = true);
 
     await _speechToText.listen(
-      localeId: 'pt_BR',
       listenFor: const Duration(seconds: 20),
-      pauseFor: const Duration(seconds: 3),
-      cancelOnError: true,
+      pauseFor: const Duration(seconds: 7),
+      // cancelOnError: true,
+      partialResults: true,
+      cancelOnError: false,
+      listenMode: ListenMode.confirmation,
+
       onResult: (result) {
         if (!mounted) return;
+
+        log('--- SPEECH RESULT ---');
+        log('Recognized Words: ${result.recognizedWords}');
+        log('Confidence: ${result.confidence}');
+        log('Final Result: ${result.finalResult}');
 
         setState(() {
           _textController.text = result.recognizedWords;
@@ -143,11 +99,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  // Future<void> _stopListening() async {
-  //   if (!_isListening) return;
-  //   await _speechToText.stop();
-  //   if (mounted) setState(() => _isListening = false);
-  // }
   Future<void> _stopListening() async {
     if (!_isListening) return;
 
@@ -163,6 +114,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _textController.clear();
       if (mounted) setState(() {});
     }
+    _stopListening();
   }
 
   @override
@@ -216,35 +168,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  // Widget _buildSendOrMicButton(ThemeData theme) {
-  //   if (_hasText) {
-  //     return IconButton.filled(
-  //       style: IconButton.styleFrom(backgroundColor: theme.colorScheme.primary),
-  //       icon: const Icon(Icons.send),
-  //       onPressed: _handleSend,
-  //     );
-  //   } else {
-  //     return GestureDetector(
-  //       onLongPress: _startListening,
-  //       onLongPressUp: _stopListening,
-  //       child: IconButton.filled(
-  //         style: IconButton.styleFrom(
-  //           backgroundColor: _isListening
-  //               ? theme.colorScheme.error
-  //               : theme.colorScheme.primary,
-  //         ),
-  //         icon: Icon(_isListening ? Icons.mic_off : Icons.mic),
-  //         onPressed: () {
-  //           // Um clique curto no microfone informa o utilizador sobre como usar
-  //           ScaffoldMessenger.of(context).removeCurrentSnackBar();
-  //           ScaffoldMessenger.of(
-  //             context,
-  //           ).showSnackBar(SnackBar(content: Text('pressAndHold'.tr())));
-  //         },
-  //       ),
-  //     );
-  //   }
-  // }
   Widget _buildSendOrMicButton(ThemeData theme) {
     if (_hasText) {
       return IconButton.filled(

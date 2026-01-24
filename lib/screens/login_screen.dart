@@ -1,8 +1,10 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/register_screen.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +13,6 @@ import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -40,31 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Future<void> _login() async {
-  //   if (!_formKey.currentState!.validate()) return;
-
-  //   setState(() => _isLoading = true);
-
-  //   final authService = Provider.of<AuthService>(context, listen: false);
-
-  //   try {
-  //     final user = await authService.signInWithEmailAndPassword(
-  //       _emailController.text.trim(),
-  //       _passwordController.text.trim(),
-  //     );
-
-  //     if (user == null) {
-  //       _showErrorDialog(
-  //         'Login Error',
-  //         'Login failed. Please check credentials.',
-  //       );
-  //     }
-  //   } catch (e) {
-  //     _showErrorDialog('Login Error', 'Something went wrong.');
-  //   }
-
-  //   if (mounted) setState(() => _isLoading = false);
-  // }
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -118,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => HomeScreen(isAdmin: isAdmin)),
       );
     } catch (e) {
-      print("Login exception: $e");
+      log("Login exception: $e");
       _showErrorDialog('Login Error', 'Something went wrong.');
     }
 
@@ -127,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _resetPassword() async {
     if (_emailController.text.trim().isEmpty) {
-      _showErrorDialog('Error', 'Please enter email first.');
+      _showErrorDialog('Error', 'enterYourEmail'.tr());
       return;
     }
 
@@ -136,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Password reset email sent')));
+    ).showSnackBar(SnackBar(content: Text('emailSent'.tr())));
   }
 
   @override
@@ -241,27 +217,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   backgroundColor: Colors.blueAccent,
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Login',
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(fontSize: 18.sp),
                                 ),
                               ),
                             ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
 
+                      SizedBox(height: 12.h),
                       TextButton(
                         onPressed: _resetPassword,
                         child: const Text(
-                          'Forgot your password?',
+                          'Forgot password?',
                           style: TextStyle(color: Colors.white70),
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
                       const Divider(color: Colors.white38),
 
-                      const SizedBox(height: 15),
+                      SizedBox(height: 15.h),
                       SignInButton(
                         Buttons.Google,
                         text: 'Sign in with Google',
@@ -269,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       if (Platform.isIOS) ...[
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         SignInButton(
                           Buttons.Apple,
                           text: 'Sign in with Apple',
@@ -277,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
