@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _fullNameController = TextEditingController();
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -37,71 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Future<void> _register() async {
-  //   if (!_formKey.currentState!.validate()) return;
-  //   setState(() => _isLoading = true);
-  //   final authService = Provider.of<AuthService>(context, listen: false);
-  //   try {
-  //     final user = await authService.createUserWithEmailAndPassword(
-  //       _emailController.text.trim(),
-  //       _passwordController.text.trim(),
-  //     );
-  //     if (user != null && mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Registration successful')),
-  //       );
-  //       Navigator.pop(context);
-  //     } else {
-  //       _showErrorDialog('Error', 'Registration failed');
-  //     }
-  //   } catch (e) {
-  //     _showErrorDialog('Error', 'Something went wrong');
-  //   }
-  //   if (mounted) setState(() => _isLoading = false);
-  // }
-
-  // Future<void> _register() async {
-  //   if (!_formKey.currentState!.validate()) return;
-
-  //   setState(() => _isLoading = true);
-
-  //   final authService = Provider.of<AuthService>(context, listen: false);
-
-  //   try {
-  //     final user = await authService.createUserWithEmailAndPassword(
-  //       _emailController.text.trim(),
-  //       _passwordController.text.trim(),
-  //     );
-
-  //     if (user != null) {
-  //       // 🔹 Firestore: create user document
-  //       final userRef = FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(user.uid);
-  //       await userRef.set({
-  //         'email': user.email,
-  //         'role': 'user',
-  //         'createdAt': FieldValue.serverTimestamp(),
-  //         'lastLogin': FieldValue.serverTimestamp(),
-  //       });
-
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(content: Text('Registration successful')),
-  //         );
-  //         Navigator.pop(context);
-  //       }
-
-  //       print("Registration successful");
-  //     } else {
-  //       _showErrorDialog('Error', 'Registration failed');
-  //     }
-  //   } catch (e) {
-  //     _showErrorDialog('Error', 'Something went wrong');
-  //   }
-  //   if (mounted) setState(() => _isLoading = false);
-  // }
-
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -113,6 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final user = await authService.createUserWithEmailAndPassword(
         _emailController.text.trim(),
         _passwordController.text.trim(),
+        _fullNameController.text.trim(),
       );
 
       if (user != null) {
@@ -121,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         await dbRef.set({
           'email': user.email,
+          'name': user.displayName ?? _fullNameController.text.trim(),
           'role': 'user', // default role
           'createdAt': ServerValue.timestamp,
           'lastLogin': ServerValue.timestamp,
@@ -199,6 +137,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontSize: 26.sp,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        SizedBox(height: 30.h),
+                        _inputField(
+                          controller: _fullNameController,
+                          label: 'Full Name',
+                          icon: Icons.person_outline,
+                          validator: (v) =>
+                              v!.isEmpty ? 'Enter your name' : null,
                         ),
                         SizedBox(height: 30.h),
                         _inputField(
@@ -328,188 +274,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-
-
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// import '../services/auth_service.dart';
-
-// class RegisterScreen extends StatefulWidget {
-//   const RegisterScreen({super.key});
-
-//   @override
-//   State<RegisterScreen> createState() => _RegisterScreenState();
-// }
-
-// class _RegisterScreenState extends State<RegisterScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _emailController = TextEditingController();
-//   final _passwordController = TextEditingController();
-//   bool _isLoading = false;
-
-//   void _showErrorDialog(String title, String message) {
-//     showDialog(
-//       context: context,
-//       builder: (ctx) => AlertDialog(
-//         title: Text(title),
-//         content: Text(message),
-//         actions: <Widget>[
-//           TextButton(
-//             child: const Text('OK'),
-//             onPressed: () {
-//               Navigator.of(ctx).pop();
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Future<void> _register() async {
-//     if (!_formKey.currentState!.validate()) {
-//       return;
-//     }
-//     setState(() {
-//       _isLoading = true;
-//     });
-
-//     final authService = Provider.of<AuthService>(context, listen: false);
-
-//     try {
-//       final user = await authService.createUserWithEmailAndPassword(
-//         _emailController.text.trim(),
-//         _passwordController.text.trim(),
-//       );
-
-//       if (user != null && mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Registration successful!')),
-//         );
-//         Navigator.of(context).pop();
-//       } else {
-//         _showErrorDialog(
-//           'Registration Error',
-//           'Registration failed. Please try again.',
-//         );
-//       }
-//     } catch (e) {
-//       _showErrorDialog('Registration Error', 'An unexpected error occurred.');
-//     }
-
-//     if (mounted) {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       appBar: AppBar(
-//         title: const Text('Create Account'),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//         iconTheme: const IconThemeData(
-//           color: Colors.white,
-//         ), // Garante que o ícone de voltar seja branco
-//         titleTextStyle: const TextStyle(
-//           color: Colors.white,
-//           fontSize: 20,
-//           fontWeight: FontWeight.bold,
-//         ),
-//       ),
-//       extendBodyBehindAppBar: true,
-//       body: Container(
-//         decoration: const BoxDecoration(
-//           image: DecorationImage(
-//             image: AssetImage("assets/images/background.png"),
-//             fit: BoxFit.cover,
-//           ),
-//         ),
-//         child: Center(
-//           child: SingleChildScrollView(
-//             padding: const EdgeInsets.all(30.0),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Text(
-//                     'Create Your Account',
-//                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.bold,
-//                       shadows: [
-//                         Shadow(
-//                           blurRadius: 10.0,
-//                           color: Colors.black.withOpacity(0.5),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   const SizedBox(height: 30),
-//                   TextFormField(
-//                     controller: _emailController,
-//                     keyboardType: TextInputType.emailAddress,
-//                     decoration: InputDecoration(
-//                       labelText: 'Email',
-//                       prefixIcon: const Icon(Icons.email_outlined),
-//                       filled: true,
-//                       fillColor: Colors.white.withOpacity(0.9),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                       ),
-//                     ),
-//                     validator: (value) => value!.isEmpty || !value.contains('@')
-//                         ? 'Please enter a valid email'
-//                         : null,
-//                   ),
-//                   const SizedBox(height: 20),
-//                   TextFormField(
-//                     controller: _passwordController,
-//                     obscureText: true,
-//                     decoration: InputDecoration(
-//                       labelText: 'Password',
-//                       prefixIcon: const Icon(Icons.lock_outline),
-//                       filled: true,
-//                       fillColor: Colors.white.withOpacity(0.9),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                       ),
-//                     ),
-//                     validator: (value) => value!.isEmpty || value.length < 6
-//                         ? 'Password must be at least 6 characters'
-//                         : null,
-//                   ),
-//                   const SizedBox(height: 30),
-//                   if (_isLoading)
-//                     const CircularProgressIndicator()
-//                   else
-//                     ElevatedButton(
-//                       style: ElevatedButton.styleFrom(
-//                         minimumSize: const Size(double.infinity, 50),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(12),
-//                         ),
-//                       ),
-//                       onPressed: _register,
-//                       child: const Text(
-//                         'Register',
-//                         style: TextStyle(fontSize: 18),
-//                       ),
-//                     ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

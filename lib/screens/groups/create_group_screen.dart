@@ -27,6 +27,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       // Usamos o AdminService que já carrega todos os utilizadores e dispositivos
       // Nenhuma ação adicional necessária se o AdminService já estiver a ser
       // fornecido e inicializado mais acima na árvore de widgets.
+      // We use the AdminService, which already loads all users and devices.
+      // No additional action is required if the AdminService is already
+      // being provided and initialized higher up in the widget tree.
     });
   }
 

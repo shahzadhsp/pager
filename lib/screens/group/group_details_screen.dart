@@ -4,24 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/models/group_member_model.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../services/admin_service.dart';
 import '../../services/group_service.dart';
-
-class GroupMember {
-  final String id;
-  final String name;
-  final String status;
-  final bool isDevice;
-
-  GroupMember({
-    required this.id,
-    required this.name,
-    required this.status,
-    required this.isDevice,
-  });
-}
 
 class GroupDetailsScreen extends StatefulWidget {
   final String groupId;
@@ -102,7 +89,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     if (confirmed == true && mounted) {
       final groupService = Provider.of<GroupService>(context, listen: false);
       try {
-        await groupService.removeMemberFromGroup(widget.groupId, member.id);
+        await groupService.removeMemberFromGroup(widget.groupId, member.name);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${member.name} ${'wasRemoved'.tr()}'),
@@ -167,7 +154,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
-              confirmText,
+              'confirm'.tr(),
               style: TextStyle(
                 color: Colors.red.shade700,
                 fontWeight: FontWeight.bold,
@@ -291,7 +278,20 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               leading: Icon(
                 member.isDevice ? Icons.sensors : Icons.person_outline,
               ),
-              title: Text(member.id),
+              title: Text(member.name),
+              // title: Row(
+              //   children: [
+              //     Text(member.name),
+              //     if (member.id == FirebaseAuth.instance.currentUser?.email)
+              //       Padding(
+              //         padding: const EdgeInsets.only(left: 6),
+              //         child: Text(
+              //           '(You)',
+              //           style: TextStyle(fontSize: 12, color: Colors.grey),
+              //         ),
+              //       ),
+              //   ],
+              // ),
               subtitle: member.status == 'pending'
                   ? Text(
                       'pending'.tr(),

@@ -46,6 +46,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 30),
 
                 _item('email'.tr(), userData['email']),
+                _item('name'.tr(), userData['name']),
                 _item('role'.tr(), userData['role']),
                 _item('Created At', _formatDate(userData['createdAt'])),
                 _item('lastLogin'.tr(), _formatDate(userData['lastLogin'])),

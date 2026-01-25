@@ -46,16 +46,48 @@ class AuthService {
     }
   }
 
+  // Future<User?> createUserWithEmailAndPassword(
+  //   String email,
+  //   String password,
+  //   String fullName,
+  // ) async {
+  //   try {
+  //     final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+  //       email: email,
+  //       password: password,
+  //     );
+  //     return userCredential.user;
+  //   } on FirebaseAuthException catch (e, s) {
+  //     developer.log(
+  //       'Registo com Email falhou',
+  //       name: 'app.auth',
+  //       error: e,
+  //       stackTrace: s,
+  //     );
+  //     return null;
+  //   }
+  // }
   Future<User?> createUserWithEmailAndPassword(
     String email,
     String password,
+    String fullName,
   ) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return userCredential.user;
+
+      final user = userCredential.user;
+
+      if (user != null) {
+        // ✅ Update display name in Firebase Auth
+        await user.updateDisplayName(fullName);
+        await user.reload();
+        return _firebaseAuth.currentUser;
+      }
+
+      return null;
     } on FirebaseAuthException catch (e, s) {
       developer.log(
         'Registo com Email falhou',
@@ -190,6 +222,7 @@ class AuthService {
     if (!snapshot.exists) {
       await ref.set({
         'email': user.email,
+        'name': user.displayName ?? 'Unnamed User',
         'role': 'user',
         'createdAt': DateTime.now().millisecondsSinceEpoch,
         'lastLogin': DateTime.now().millisecondsSinceEpoch,

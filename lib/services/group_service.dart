@@ -44,14 +44,6 @@ class GroupService with ChangeNotifier {
     await _dbRef.update(multiPathUpdates);
   }
 
-  // Future<Map<String, String>> getGroupMembers(String groupId) async {
-  //   final snapshot = await _dbRef.child('groups/$groupId/members').get();
-  //   if (snapshot.exists && snapshot.value != null) {
-  //     final data = Map<String, dynamic>.from(snapshot.value as Map);
-  //     return data.map((key, value) => MapEntry(key, value.toString()));
-  //   }
-  //   return {};
-  // }
   Future<Map<String, String>> getGroupMembers(String groupId) async {
     final snapshot = await _dbRef.child('groups/$groupId/members').get();
 
