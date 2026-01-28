@@ -4,9 +4,10 @@ class GroupModel {
   final String id;
   final String name;
   final String description;
-  final String ownerId; // ID do utilizador que criou o grupo
-  final List<String> deviceIds; // Lista de IDs dos dispositivos no grupo
+  final String ownerId; // ID of user who created the group
+  final List<String> deviceIds; // Devices in the group
   final Timestamp createdAt;
+  bool isActive; // admin control
 
   GroupModel({
     required this.id,
@@ -15,23 +16,31 @@ class GroupModel {
     required this.ownerId,
     required this.deviceIds,
     required this.createdAt,
+    required this.isActive,
   });
 
-  // Fábrica para criar uma instância a partir de um DocumentSnapshot do Firestore
+  /// 🔥 Create from Firestore document
   factory GroupModel.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return GroupModel.fromMap(data, doc.id);
+  }
+
+  /// 🔁 Create from Map (generic / reusable)
+  factory GroupModel.fromMap(Map<String, dynamic> data, String id) {
     return GroupModel(
-      id: doc.id,
+      id: id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       ownerId: data['ownerId'] ?? '',
-      // Garante que a lista é sempre do tipo correto
       deviceIds: List<String>.from(data['deviceIds'] ?? []),
-      createdAt: data['createdAt'] ?? Timestamp.now(),
+      createdAt: data['createdAt'] is Timestamp
+          ? data['createdAt']
+          : Timestamp.now(),
+      isActive: data['isActive'] ?? true,
     );
   }
 
-  // Método para converter uma instância para um mapa, útil para escrever no Firestore
+  /// 📝 Convert to Firestore map
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -39,6 +48,22 @@ class GroupModel {
       'ownerId': ownerId,
       'deviceIds': deviceIds,
       'createdAt': createdAt,
+      'isActive': isActive,
     };
+  }
+
+  /// 🔁 From Realtime Database
+  factory GroupModel.fromRTDB(String id, Map data) {
+    return GroupModel(
+      id: id,
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      ownerId: data['ownerId'] ?? '',
+      deviceIds: data['deviceIds'] != null
+          ? List<String>.from(data['deviceIds'].values)
+          : [],
+      createdAt: data['createdAt'] ?? 0,
+      isActive: data['isActive'] ?? true,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:myapp/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
@@ -34,10 +35,16 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildMetricsGrid(AdminService service, BuildContext context) {
+    final chatProvider = context.watch<ChatProvider>();
+
+    // sirf group conversations
+    final groups = chatProvider.conversations
+        .where((c) => c.isGroup == true)
+        .toList();
     final metrics = [
       {
         'title': 'totalUers'.tr(),
-        'value': service.totalUsers.toString(),
+        'value': service.users1.length.toString(),
         'icon': Icons.people_outline,
         'color': Colors.blue,
         'route': '/admin/users',
@@ -58,7 +65,7 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'totalGroups'.tr(),
-        'value': service.totalGroups.toString(),
+        'value': groups.length.toString(),
         'icon': Icons.group_work_outlined,
         'color': Colors.orange,
         'route': '/admin/groups',

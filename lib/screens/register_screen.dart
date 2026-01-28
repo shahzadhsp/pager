@@ -146,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: (v) =>
                               v!.isEmpty ? 'Enter your name' : null,
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 16.h),
                         _inputField(
                           controller: _emailController,
                           label: 'Email',

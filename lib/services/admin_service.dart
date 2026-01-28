@@ -1,119 +1,67 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
-
-// --- Modelos de Dados ---
-
-class AdminUser {
-  final String id;
-  final String name;
-  final String email;
-  final DateTime registrationDate;
-  final List<String> deviceIds;
-  bool isActive;
-
-  AdminUser({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.registrationDate,
-    required this.deviceIds,
-    this.isActive = true,
-  });
-}
-
-class AdminDevice {
-  final String id;
-  final String macAddress;
-  final String ownerId;
-  final String ownerName;
-  final LatLng location;
-  final DateTime addedDate;
-  DateTime lastUplink;
-  bool isOnline;
-  String lastHeardByGatewayId;
-
-  AdminDevice({
-    required this.id,
-    required this.macAddress,
-    required this.ownerId,
-    required this.ownerName,
-    required this.location,
-    required this.addedDate,
-    required this.lastUplink,
-    required this.lastHeardByGatewayId,
-    this.isOnline = false,
-  });
-}
-
-class AdminGateway {
-  final String id;
-  final String name;
-  final LatLng location;
-  bool isOnline;
-  DateTime lastSeen;
-
-  AdminGateway({
-    required this.id,
-    required this.name,
-    required this.location,
-    required this.lastSeen,
-    this.isOnline = false,
-  });
-}
-
-class AdminUplink {
-  final String id;
-  final String deviceId;
-  final String gatewayId;
-  final DateTime timestamp;
-  final Map<String, dynamic> payload;
-  final int rssi;
-
-  AdminUplink({
-    required this.id,
-    required this.deviceId,
-    required this.gatewayId,
-    required this.timestamp,
-    required this.payload,
-    required this.rssi,
-  });
-}
-
-class AdminGroup {
-  final String id;
-  String name;
-  final List<String> memberIds;
-  final List<String> deviceIds;
-
-  AdminGroup({
-    required this.id,
-    required this.name,
-    required this.memberIds,
-    required this.deviceIds,
-  });
-}
-
-// --- Tipos de Retorno para Relatórios ---
+import 'package:myapp/models/admin_device_model.dart';
+import 'package:myapp/models/admin_gateway.dart';
+import 'package:myapp/models/admin_group.dart';
+import 'package:myapp/models/admin_uplink.dart';
+import 'package:myapp/models/admin_users_model.dart';
+import 'package:myapp/models/app_user.dart';
+import 'package:myapp/models/group_model.dart';
 
 typedef GrowthData = ({List<int> userCounts, List<int> deviceCounts});
 // typedef MostActiveDevice = (AdminDevice? device, int uplinkCount);
 typedef MostActiveDevice = (AdminDevice? device, int uplinkCount);
 
 // --- Serviço de Administração ---
-
 class AdminService with ChangeNotifier {
   List<AdminUser> _users = [];
+  List<AppUser> _users1 = [];
+
   List<AdminGateway> _gateways = [];
   List<AdminDevice> _devices = [];
   List<AdminUplink> _uplinks = [];
   List<AdminGroup> _groups = [];
+  final DatabaseReference _usersRef = FirebaseDatabase.instance.ref('users');
+  final DatabaseReference _devicesRef = FirebaseDatabase.instance.ref(
+    'devices',
+  );
+  final DatabaseReference _db = FirebaseDatabase.instance.ref();
 
   bool _isInitialized = false;
 
-  // --- Getters Públicos ---
+  // int get totalGroups => _groups.length;
 
+  StreamSubscription? _groupsSub;
+
+  /// 🔥 Start listening to groups
+  // void listenToGroups() {
+  //   _groupsSub?.cancel();
+
+  //   _groupsSub = _db.child('groups').onValue.listen((event) {
+  //     _groups.clear();
+
+  //     final data = event.snapshot.value;
+  //     if (data != null && data is Map) {
+  //       data.forEach((key, value) {
+  //         _groups.add(
+  //           GroupModel.fromMap(
+  //             Map<String, dynamic>.from(value),
+  //             key, // ✅ id
+  //           ),
+  //         );
+  //       });
+  //     }
+
+  //     notifyListeners();
+  //   });
+  // }
+
+  // --- Getters Públicos ---
+  List<AppUser> get users1 => _users1;
   List<AdminUser> get users => _users;
   List<AdminGateway> get gateways => _gateways;
   List<AdminDevice> get devices => _devices;
@@ -144,7 +92,50 @@ class AdminService with ChangeNotifier {
   }
 
   AdminService() {
-    _initializeData();
+    _listenUsers();
+    _listenDevices();
+    _listenGroups();
+  }
+
+  // fetch real time users from Firebase Realtime Database
+  void _listenUsers() {
+    _usersRef.onValue.listen((event) {
+      debugPrint('RAW SNAPSHOT: ${event.snapshot.value}');
+
+      final data = event.snapshot.value;
+      if (data == null) {
+        _users1 = [];
+      } else {
+        final map = Map<String, dynamic>.from(data as Map);
+        _users1 = map.entries.map((e) {
+          return AppUser.fromMap(e.key, Map<String, dynamic>.from(e.value));
+        }).toList();
+      }
+
+      debugPrint('USERS COUNT: ${_users1.length}');
+      notifyListeners();
+    });
+  }
+
+  // fetch real time devices from Firebase Realtime Database
+  void _listenDevices() {
+    _devicesRef.onValue.listen((event) {
+      debugPrint('RAW DEVICES SNAPSHOT: ${event.snapshot.value}');
+
+      final data = event.snapshot.value;
+
+      if (data == null) {
+        _devices = [];
+      } else {
+        final map = Map<String, dynamic>.from(data as Map);
+        _devices = map.entries.map((e) {
+          return AdminDevice.fromMap(e.key, Map<String, dynamic>.from(e.value));
+        }).toList();
+      }
+
+      debugPrint('DEVICES COUNT: ${_devices.length}');
+      notifyListeners();
+    });
   }
 
   // Método auxiliar para encontrar nomes
@@ -158,6 +149,11 @@ class AdminService with ChangeNotifier {
     }
 
     return 'Desconhecido';
+  }
+
+  String getOwnerName(String ownerId) {
+    final user = _users1.firstWhereOrNull((u) => u.id == ownerId);
+    return user?.name ?? 'Unknown';
   }
 
   String _generateMacAddress(Random random) {
@@ -303,12 +299,27 @@ class AdminService with ChangeNotifier {
     }
   }
 
+  final _ref = FirebaseDatabase.instance.ref('groups');
+
+  Stream<List<GroupModel>> _listenGroups() {
+    return _ref.onValue.map((event) {
+      final data = event.snapshot.value as Map?;
+      if (data == null) return [];
+
+      return data.entries
+          .map((e) => GroupModel.fromRTDB(e.key, e.value))
+          .toList();
+    });
+  }
   // --- Lógica de Negócio e CRUD ---
 
-  void updateUserStatus(String userId, bool isActive) {
-    final user = _users.firstWhere((u) => u.id == userId);
-    user.isActive = isActive;
-    notifyListeners();
+  // void updateUserStatus(String userId, bool isActive) {
+  //   final user = _users.firstWhere((u) => u.id == userId);
+  //   user.isActive = isActive;
+  //   notifyListeners();
+  // }
+  Future<void> updateUserStatus(String userId, bool isActive) async {
+    await _usersRef.child(userId).update({'isActive': isActive});
   }
 
   // --- Gestão de Grupos ---

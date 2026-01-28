@@ -1,5 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/models/admin_device_model.dart';
+import 'package:myapp/models/admin_uplink.dart';
+import 'package:myapp/models/admin_users_model.dart';
 import 'package:provider/provider.dart';
 import '../../services/admin_service.dart';
 import '../../services/firebase_service.dart';

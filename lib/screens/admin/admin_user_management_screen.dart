@@ -13,11 +13,13 @@ class AdminUserManagementScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('userManagement'.tr())),
       body: ListView.builder(
-        itemCount: adminService.users.length,
+        itemCount: adminService.users1.length,
         itemBuilder: (context, index) {
-          final user = adminService.users[index];
+          final user = adminService.users1[index];
           return ListTile(
-            leading: CircleAvatar(child: Text(user.name.substring(0, 1))),
+            leading: CircleAvatar(
+              child: Text(user.name.isNotEmpty ? user.name[0] : '?'),
+            ),
             title: Text(user.name),
             subtitle: Text(user.email),
             trailing: Switch(

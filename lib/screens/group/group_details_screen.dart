@@ -1,13 +1,12 @@
-import 'dart:developer';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/models/group_member_model.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
-import '../../services/admin_service.dart';
 import '../../services/group_service.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -33,9 +32,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     if (!mounted) return [];
 
     final groupService = context.read<GroupService>();
-    final adminService = context.read<AdminService>();
 
-    // Get members from Firebase
     final Map<String, String> membersMap = await groupService.getGroupMembers(
       widget.groupId,
     );
@@ -43,36 +40,48 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final List<GroupMember> members = [];
 
     for (final entry in membersMap.entries) {
-      final String email = entry.key; // ✅ EMAIL
-      final String status = entry.value; // member / pending
+      final uid = entry.key;
+      final status = entry.value;
 
-      // Try to get user name from admin users via email
-      final user = adminService.users.where((u) => u.email == email).toList();
+      // 🔥 Realtime DB se user info
+      final userInfo = await _getUserInfoFromRTDB(uid);
 
-      final String name = user.isNotEmpty ? user.first.name : email;
+      final displayName = userInfo['name']!.isNotEmpty
+          ? userInfo['name']!
+          : userInfo['email']!;
 
       members.add(
         GroupMember(
-          id: email, // ✅ email as ID
-          name: name, // show name if found, else email
+          id: uid,
+          name: displayName,
           status: status,
-          isDevice: false, // ❌ no devices anymore
+          isDevice: false,
         ),
       );
-      log('check the email');
-      log('$email');
-      log('check the name');
-      log('$name');
-      log('check the status');
-      log('$status');
     }
 
-    // Sort alphabetically by name/email
     members.sort(
       (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
     );
 
     return members;
+  }
+
+  // get users from db directly
+  Future<Map<String, String>> _getUserInfoFromRTDB(String uid) async {
+    final ref = FirebaseDatabase.instance.ref('users/$uid');
+    final snapshot = await ref.get();
+
+    if (snapshot.exists && snapshot.value is Map) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+
+      final name = (data['name'] ?? '').toString().trim();
+      final email = (data['email'] ?? '').toString().trim();
+
+      return {'name': name, 'email': email};
+    }
+
+    return {'name': '', 'email': uid};
   }
 
   void _refreshMembers() {
@@ -279,19 +288,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 member.isDevice ? Icons.sensors : Icons.person_outline,
               ),
               title: Text(member.name),
-              // title: Row(
-              //   children: [
-              //     Text(member.name),
-              //     if (member.id == FirebaseAuth.instance.currentUser?.email)
-              //       Padding(
-              //         padding: const EdgeInsets.only(left: 6),
-              //         child: Text(
-              //           '(You)',
-              //           style: TextStyle(fontSize: 12, color: Colors.grey),
-              //         ),
-              //       ),
-              //   ],
-              // ),
               subtitle: member.status == 'pending'
                   ? Text(
                       'pending'.tr(),
