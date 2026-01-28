@@ -25,6 +25,9 @@ class AdminService with ChangeNotifier {
   List<AdminDevice> _devices = [];
   List<AdminUplink> _uplinks = [];
   List<AdminGroup> _groups = [];
+  List<GroupModel> _groupsRTDB = [];
+  List<GroupModel> get groupsRTDB => _groupsRTDB;
+
   final DatabaseReference _usersRef = FirebaseDatabase.instance.ref('users');
   final DatabaseReference _devicesRef = FirebaseDatabase.instance.ref(
     'devices',
@@ -38,28 +41,7 @@ class AdminService with ChangeNotifier {
   StreamSubscription? _groupsSub;
 
   /// 🔥 Start listening to groups
-  // void listenToGroups() {
-  //   _groupsSub?.cancel();
-
-  //   _groupsSub = _db.child('groups').onValue.listen((event) {
-  //     _groups.clear();
-
-  //     final data = event.snapshot.value;
-  //     if (data != null && data is Map) {
-  //       data.forEach((key, value) {
-  //         _groups.add(
-  //           GroupModel.fromMap(
-  //             Map<String, dynamic>.from(value),
-  //             key, // ✅ id
-  //           ),
-  //         );
-  //       });
-  //     }
-
-  //     notifyListeners();
-  //   });
-  // }
-
+  ///
   // --- Getters Públicos ---
   List<AppUser> get users1 => _users1;
   List<AdminUser> get users => _users;
@@ -94,7 +76,7 @@ class AdminService with ChangeNotifier {
   AdminService() {
     _listenUsers();
     _listenDevices();
-    _listenGroups();
+    listenGroups();
   }
 
   // fetch real time users from Firebase Realtime Database
@@ -300,30 +282,30 @@ class AdminService with ChangeNotifier {
   }
 
   final _ref = FirebaseDatabase.instance.ref('groups');
+  void listenGroups() {
+    _db.child('groups').onValue.listen((event) {
+      final data = event.snapshot.value;
 
-  Stream<List<GroupModel>> _listenGroups() {
-    return _ref.onValue.map((event) {
-      final data = event.snapshot.value as Map?;
-      if (data == null) return [];
+      if (data == null) {
+        _groupsRTDB = [];
+      } else {
+        final map = Map<String, dynamic>.from(data as Map);
+        _groupsRTDB = map.entries.map((e) {
+          return GroupModel.fromRTDB(e.key, Map<String, dynamic>.from(e.value));
+        }).toList();
+      }
 
-      return data.entries
-          .map((e) => GroupModel.fromRTDB(e.key, e.value))
-          .toList();
+      debugPrint('ADMIN GROUPS COUNT: ${_groupsRTDB.length}');
+      notifyListeners();
     });
   }
-  // --- Lógica de Negócio e CRUD ---
 
-  // void updateUserStatus(String userId, bool isActive) {
-  //   final user = _users.firstWhere((u) => u.id == userId);
-  //   user.isActive = isActive;
-  //   notifyListeners();
-  // }
+  // --- Lógica de Negócio e CRUD ---
   Future<void> updateUserStatus(String userId, bool isActive) async {
     await _usersRef.child(userId).update({'isActive': isActive});
   }
 
   // --- Gestão de Grupos ---
-
   void createGroup(String name) {
     final newGroup = AdminGroup(
       id: 'group_${_groups.length + 1}',

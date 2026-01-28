@@ -7,13 +7,19 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/admin_service.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
+  @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final adminService = Provider.of<AdminService>(context);
     final theme = Theme.of(context);
+    final groups = context.watch<AdminService>().groupsRTDB;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,12 +41,7 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildMetricsGrid(AdminService service, BuildContext context) {
-    final chatProvider = context.watch<ChatProvider>();
-
     // sirf group conversations
-    final groups = chatProvider.conversations
-        .where((c) => c.isGroup == true)
-        .toList();
     final metrics = [
       {
         'title': 'totalUers'.tr(),
@@ -65,7 +66,7 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'totalGroups'.tr(),
-        'value': groups.length.toString(),
+        'value': service.groupsRTDB.length.toString(),
         'icon': Icons.group_work_outlined,
         'color': Colors.orange,
         'route': '/admin/groups',

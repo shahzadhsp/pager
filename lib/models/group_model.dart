@@ -54,15 +54,35 @@ class GroupModel {
 
   /// 🔁 From Realtime Database
   factory GroupModel.fromRTDB(String id, Map data) {
+    // ✅ deviceIds (support Map OR List)
+    List<String> deviceIds = [];
+
+    if (data['deviceIds'] != null) {
+      if (data['deviceIds'] is Map) {
+        deviceIds = (data['deviceIds'] as Map).keys
+            .map((e) => e.toString())
+            .toList();
+      } else if (data['deviceIds'] is List) {
+        deviceIds = List<String>.from(data['deviceIds']);
+      }
+    }
+
+    // ✅ createdAt (RTDB → Timestamp)
+    Timestamp createdAt;
+
+    if (data['createdAt'] is int) {
+      createdAt = Timestamp.fromMillisecondsSinceEpoch(data['createdAt']);
+    } else {
+      createdAt = Timestamp.now();
+    }
+
     return GroupModel(
       id: id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       ownerId: data['ownerId'] ?? '',
-      deviceIds: data['deviceIds'] != null
-          ? List<String>.from(data['deviceIds'].values)
-          : [],
-      createdAt: data['createdAt'] ?? 0,
+      deviceIds: deviceIds,
+      createdAt: createdAt,
       isActive: data['isActive'] ?? true,
     );
   }

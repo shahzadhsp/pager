@@ -12,11 +12,11 @@ class AdminGroupManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final adminService = context.watch<AdminService>();
-    // final groups = adminService.groups;
-    final chatProvider = context.watch<ChatProvider>();
+
     final theme = Theme.of(context);
-    // 🔑 same source as ConversationListScreen
-    final groups = chatProvider.conversations.where((c) => c.isGroup).toList();
+
+    // final groups = chatProvider.conversations.where((c) => c.isGroup).toList();
+    final groups = context.watch<AdminService>().groupsRTDB;
 
     return Scaffold(
       body: groups.isEmpty
@@ -51,31 +51,31 @@ class AdminGroupManagementScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        group.lastMessage ?? 'No messages yet',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      // Text(
+                      //   group.lastMessage ?? 'No messages yet',
+                      //   maxLines: 1,
+                      //   overflow: TextOverflow.ellipsis,
+                      //   style: theme.textTheme.bodySmall,
+                      // ),
                     ],
                   ),
-                  trailing: group.unreadCount > 0
-                      ? Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${group.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      : null,
+                  // trailing: group.unreadCount > 0
+                  //     ? Container(
+                  //         padding: const EdgeInsets.all(6),
+                  //         decoration: BoxDecoration(
+                  //           color: theme.colorScheme.primary,
+                  //           shape: BoxShape.circle,
+                  //         ),
+                  //         child: Text(
+                  //           '${group.unreadCount}',
+                  //           style: const TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 12,
+                  //             fontWeight: FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //       )
+                  //     : null,
                   onTap: () => context.push('/chat/${group.id}'),
                 );
               },
