@@ -229,11 +229,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         'icon': Icons.group_work_outlined,
         'route': '/admin/groups',
       },
-      {
-        'title': 'reportsAndAnalytics'.tr(),
-        'icon': Icons.analytics_outlined,
-        'route': '/admin/reports',
-      },
+      // {
+      //   'title': 'reportsAndAnalytics'.tr(),
+      //   'icon': Icons.analytics_outlined,
+      //   'route': '/admin/reports',
+      // },
       {
         'title': 'uplinkFeed'.tr(),
         'icon': Icons.stream_outlined,

@@ -72,6 +72,8 @@ class _GeneralOverviewTab extends StatelessWidget {
     final device = mostActive.$1;
     final uplinks = mostActive.$2;
 
+    // 👇 CONDITION HERE (VERY IMPORTANT)
+    final bool hasMostActiveData = device != null && uplinks != null;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -92,14 +94,31 @@ class _GeneralOverviewTab extends StatelessWidget {
               ),
             ),
             SizedBox(width: 16.h),
+            // Expanded(
+            //   child: _buildMetricCard(
+            //     context,
+            //     'mostActiveDevices'.tr(),
+            //     device?.id ?? 'N/A',
+            //     Icons.devices_other_outlined,
+            //     subtext: 'Uplinks: ${uplinks ?? 'N/A'}',
+            //   ),
+            // ),
             Expanded(
-              child: _buildMetricCard(
-                context,
-                'mostActiveDevices'.tr(),
-                device?.id ?? 'N/A',
-                Icons.devices_other_outlined,
-                subtext: 'Uplinks: ${uplinks ?? 'N/A'}',
-              ),
+              child: hasMostActiveData
+                  ? _buildMetricCard(
+                      context,
+                      'mostActiveDevices'.tr(),
+                      device!.id,
+                      Icons.devices_other_outlined,
+                      subtext: 'Uplinks: $uplinks',
+                    )
+                  : _buildMetricCard(
+                      context,
+                      'mostActiveDevices'.tr(),
+                      'No data',
+                      Icons.devices_other_outlined,
+                      subtext: 'No uplinks yet',
+                    ),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen>
   late TabController _tabController;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
+
   bool _isSearching = false;
   int _currentTabIndex = 0;
   static const String _adminPassword = 'admin';
@@ -77,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen>
     showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
+        final searchQuery = context.watch<SearchProvider>().query.toLowerCase();
         return AlertDialog(
           title: Text('adminAceess'.tr()),
           content: TextField(
@@ -89,12 +92,24 @@ class _HomeScreenState extends State<HomeScreen>
           actions: <Widget>[
             TextButton(
               child: Text('cancel'.tr()),
-              onPressed: () => Navigator.of(dialogContext).pop(),
+              onPressed: () {
+                FirebaseAnalytics.instance.logEvent(
+                  name: 'button_click',
+                  parameters: {'button_name': 'login', 'screen': 'LoginScreen'},
+                );
+
+                Navigator.of(dialogContext).pop();
+              },
             ),
 
             ElevatedButton(
               child: Text('enter').tr(),
               onPressed: () {
+                FirebaseAnalytics.instance.logEvent(
+                  name: 'button_click',
+                  parameters: {'button_name': 'login', 'screen': 'LoginScreen'},
+                );
+
                 _validatePasswordAndNavigate(dialogContext);
                 final service = context.read<AdminService>();
                 service.sendUplink('dev_1', 'group_1');

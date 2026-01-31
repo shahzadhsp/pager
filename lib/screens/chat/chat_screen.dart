@@ -8,6 +8,7 @@ import '../../providers/chat_provider.dart';
 import '../../models/chat_message_model.dart';
 import '../../services/admin_service.dart';
 import '../../widgets/chat_input_field.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
@@ -21,10 +22,25 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _markAsRead();
+  //   });
+  // }
   @override
   void initState() {
     super.initState();
+
+    _analytics.logScreenView(
+      screenName: 'chat_screen',
+      screenClass: 'ChatScreen',
+      parameters: {'conversation_id': widget.conversationId},
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markAsRead();
     });
@@ -58,7 +74,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 messageId: message.messageId,
                 newText: newText,
               );
-
+              _analytics.logEvent(
+                name: 'message_edited',
+                parameters: {
+                  'conversation_id': widget.conversationId,
+                  'message_id': message.messageId,
+                },
+              );
               Navigator.pop(context);
             },
           ),
@@ -120,7 +142,15 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: const Icon(Icons.info_outline),
               tooltip: 'groupDetails'.tr(),
+              // onPressed: () {
+              //   context.push('/chat/${widget.conversationId}/details');
+              // },
               onPressed: () {
+                _analytics.logEvent(
+                  name: 'group_details_opened',
+                  parameters: {'conversation_id': widget.conversationId},
+                );
+
                 context.push('/chat/${widget.conversationId}/details');
               },
             ),
@@ -266,6 +296,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage(ChatProvider chatProvider, String messageText) {
     chatProvider.sendMessage(widget.conversationId, messageText);
+    _analytics.logEvent(
+      name: 'message_sent',
+      parameters: {
+        'conversation_id': widget.conversationId,
+        'message_length': messageText.length,
+      },
+    );
   }
 }
 
@@ -413,15 +450,7 @@ class _MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
-            // 💬 Message text
-            // Text(
-            //   message.text,
-            //   style: theme.textTheme.bodyLarge?.copyWith(
-            //     color: Colors.black87,
-            //     fontSize: 15.5,
-            //     height: 1.3,
-            //   ),
-            // ),
+
             Text(
               message.status == 'deleted'
                   ? 'This message was deleted'
@@ -437,21 +466,6 @@ class _MessageBubble extends StatelessWidget {
             ),
             SizedBox(height: 2.h),
             // ⏰ Time + ✔✔ Read status (Bottom Right)
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.end,
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-            //     Text(
-            //       timeStr,
-            //       style: theme.textTheme.bodySmall?.copyWith(
-            //         fontSize: 11,
-            //         color: Colors.grey.shade600,
-            //       ),
-            //     ),
-            //     SizedBox(width: 4.w),
-            //     _buildReadStatus(context, message),
-            //   ],
-            // ),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [

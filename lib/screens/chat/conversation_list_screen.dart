@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/search_provider.dart';
 import '../../models/conversation_model.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class ConversationListScreen extends StatelessWidget {
   final bool useFab;
@@ -18,6 +19,11 @@ class ConversationListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final searchQuery = context.watch<SearchProvider>().query.toLowerCase();
     final isDark = context.watch<ThemeProvider>().isDark;
+    final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+    _analytics.logScreenView(
+      screenName: 'conversation_list_screen',
+      screenClass: 'ConversationListScreen',
+    );
     return Scaffold(
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
@@ -71,6 +77,7 @@ class ConversationListScreen extends StatelessWidget {
                         },
                       ),
                     );
+                    _analytics.logEvent(name: 'create_group_clicked');
                   },
                   tooltip: 'New Group',
                   mini: true,
@@ -78,7 +85,10 @@ class ConversationListScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16.h),
                 FloatingActionButton(
-                  onPressed: () => context.push('/scan'),
+                  onPressed: () {
+                    context.push('/scan');
+                    _analytics.logEvent(name: 'new_conversation_clicked');
+                  },
                   tooltip: 'New Conversation',
                   child: const Icon(Icons.message),
                 ),

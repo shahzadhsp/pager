@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 // Correção dos imports para os caminhos corretos dos ficheiros
@@ -47,6 +49,9 @@ class AppRouter {
     refreshListenable: _GoRouterRefreshStream(
       authService.authStateChanges,
     ), // Corrigido
+    observers: [
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+    ],
     routes: <RouteBase>[
       GoRoute(
         path: '/',

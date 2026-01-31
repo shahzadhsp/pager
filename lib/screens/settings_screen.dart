@@ -9,6 +9,7 @@ import 'package:myapp/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../providers/settings_provider.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -16,7 +17,7 @@ class SettingsScreen extends StatelessWidget {
   void _shareApp(BuildContext context) {
     // Personalize esta mensagem como desejar
     const String appLink =
-        'https://play.google.com/store/apps/details?id=com.example.app'; // Link genérico
+        'https://play.google.com/store/apps/details?id=com.example.app';
     const String message =
         'Experimente esta aplicação incrível para os seus dispositivos LoRa!\n\n$appLink';
     Share.share(message);
@@ -24,6 +25,11 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+    _analytics.logScreenView(
+      screenName: 'settings_screen',
+      screenClass: 'SettingsScreen',
+    );
     return Scaffold(
       appBar: AppBar(title: Text('settings'.tr())),
       body: Consumer<SettingsProvider>(
@@ -50,6 +56,7 @@ class SettingsScreen extends StatelessWidget {
     BuildContext context,
     SettingsProvider settingsProvider,
   ) {
+    final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,9 +71,17 @@ class SettingsScreen extends StatelessWidget {
           title: Text('readReceits'.tr()),
           subtitle: Text('disable'.tr()),
           value: settingsProvider.readReceiptsEnabled,
+          // onChanged: (bool value) {
+          //   settingsProvider.toggleReadReceipts(value);
+          // },
           onChanged: (bool value) {
             settingsProvider.toggleReadReceipts(value);
+            _analytics.logEvent(
+              name: 'read_receipts_toggled',
+              parameters: {'enabled': value},
+            );
           },
+
           secondary: const Icon(Icons.privacy_tip_outlined),
         ),
       ],
@@ -74,6 +89,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildAboutSection(BuildContext context) {
+    final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -95,6 +111,7 @@ class SettingsScreen extends StatelessWidget {
           title: Text('language'.tr()),
           subtitle: Text('changeLanguage'.tr()),
           onTap: () {
+            _analytics.logEvent(name: 'language_settings_opened');
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const LanguageSettingsScreen()),
@@ -106,6 +123,7 @@ class SettingsScreen extends StatelessWidget {
           title: Text('faq'.tr()),
           subtitle: Text('faqSubtitle'.tr()),
           onTap: () {
+            _analytics.logEvent(name: 'faq_opened');
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const FaqScreen()),
@@ -127,6 +145,7 @@ class SettingsScreen extends StatelessWidget {
           title: Text('profile'.tr()),
           subtitle: Text('profileSubtitle'.tr()),
           onTap: () {
+            _analytics.logEvent(name: 'profile_opened');
             // Profile screen ya future action
             Navigator.push(
               context,
@@ -140,6 +159,7 @@ class SettingsScreen extends StatelessWidget {
           subtitle: Text('viewBatteryUsage'.tr()),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: () {
+            _analytics.logEvent(name: 'battery_history_opened');
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => BatteryHistoryScreen()),
@@ -152,6 +172,10 @@ class SettingsScreen extends StatelessWidget {
           trailing: Switch(
             value: context.watch<ThemeProvider>().isDark,
             onChanged: (value) {
+              _analytics.logEvent(
+                name: 'theme_changed',
+                parameters: {'mode': value ? 'dark' : 'light'},
+              );
               context.read<ThemeProvider>().setTheme(
                 value ? ThemeMode.dark : ThemeMode.light,
               );
@@ -162,6 +186,7 @@ class SettingsScreen extends StatelessWidget {
           leading: const Icon(Icons.logout, color: Colors.red),
           title: const Text('Logout', style: TextStyle(color: Colors.red)),
           onTap: () {
+            _analytics.logEvent(name: 'logout_confirmed');
             showDialog(
               context: context,
               builder: (dialogCtx) => AlertDialog(
