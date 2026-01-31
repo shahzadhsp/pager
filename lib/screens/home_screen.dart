@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/services/admin_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/device_provider.dart';
 import '../providers/search_provider.dart';
@@ -90,9 +91,14 @@ class _HomeScreenState extends State<HomeScreen>
               child: Text('cancel'.tr()),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
+
             ElevatedButton(
               child: Text('enter').tr(),
-              onPressed: () => _validatePasswordAndNavigate(dialogContext),
+              onPressed: () {
+                _validatePasswordAndNavigate(dialogContext);
+                final service = context.read<AdminService>();
+                service.sendUplink('dev_1', 'group_1');
+              },
             ),
           ],
         );

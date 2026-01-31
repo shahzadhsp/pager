@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:myapp/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/admin_service.dart';
@@ -11,14 +10,10 @@ class AdminGroupManagementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final adminService = context.watch<AdminService>();
-
     final theme = Theme.of(context);
-
-    // final groups = chatProvider.conversations.where((c) => c.isGroup).toList();
     final groups = context.watch<AdminService>().groupsRTDB;
-
     return Scaffold(
+      appBar: AppBar(title: Text('groupManagement'.tr())),
       body: groups.isEmpty
           ? Center(child: Text('belongToGroup'.tr()))
           : ListView.separated(
@@ -51,31 +46,9 @@ class AdminGroupManagementScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      // Text(
-                      //   group.lastMessage ?? 'No messages yet',
-                      //   maxLines: 1,
-                      //   overflow: TextOverflow.ellipsis,
-                      //   style: theme.textTheme.bodySmall,
-                      // ),
                     ],
                   ),
                   // trailing: group.unreadCount > 0
-                  //     ? Container(
-                  //         padding: const EdgeInsets.all(6),
-                  //         decoration: BoxDecoration(
-                  //           color: theme.colorScheme.primary,
-                  //           shape: BoxShape.circle,
-                  //         ),
-                  //         child: Text(
-                  //           '${group.unreadCount}',
-                  //           style: const TextStyle(
-                  //             color: Colors.white,
-                  //             fontSize: 12,
-                  //             fontWeight: FontWeight.bold,
-                  //           ),
-                  //         ),
-                  //       )
-                  //     : null,
                   onTap: () => context.push('/chat/${group.id}'),
                 );
               },

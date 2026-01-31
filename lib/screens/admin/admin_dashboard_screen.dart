@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:myapp/providers/chat_provider.dart';
+import 'package:myapp/providers/analytics_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
@@ -17,9 +17,19 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    debugPrint('Dashboard rebuild');
     final adminService = Provider.of<AdminService>(context);
+    final analytics = context.watch<AnalyticsProvider>();
     final theme = Theme.of(context);
     final groups = context.watch<AdminService>().groupsRTDB;
+    List<BarChartGroupData> getBars(Map<int, int> data) {
+      return data.entries.map((e) {
+        return BarChartGroupData(
+          x: e.key,
+          barRods: [BarChartRodData(toY: e.value.toDouble(), width: 12)],
+        );
+      }).toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -31,9 +41,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         padding: EdgeInsets.all(16.0.r),
         children: [
           _buildMetricsGrid(adminService, context),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           _buildActivityChart(adminService, context),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           _buildNavigationMenu(context),
         ],
       ),
@@ -88,13 +98,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           child: InkWell(
             onTap: () => context.go(metric['route'] as String),
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,7 +146,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('uplinkVolume'.tr(), style: theme.textTheme.titleLarge),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             SizedBox(
               height: 200.h,
               child: BarChart(
@@ -256,7 +266,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               title: Text(item['title'] as String),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go(item['route'] as String),
+              onTap: () {
+                context.go(item['route'] as String);
+                final service = context.read<AdminService>();
+                service.sendUplink('dev_1', 'group_1');
+              },
             ),
           );
         }),

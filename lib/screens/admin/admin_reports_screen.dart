@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
@@ -68,33 +69,33 @@ class _GeneralOverviewTab extends StatelessWidget {
     final growthData = adminService.getNetworkGrowthLast30Days();
     final mostActive = adminService.getMostActiveDevice();
 
-    final device = mostActive.$1; // AdminDevice?
+    final device = mostActive.$1;
     final uplinks = mostActive.$2;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _buildSectionTitle(context, 'networkGrowth'.tr()),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         _buildGrowthChart(context, growthData),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         _buildSectionTitle(context, 'activityMetrics'.tr()),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Row(
           children: [
             Expanded(
               child: _buildMetricCard(
                 context,
-                'Uplinks na Última Semana',
+                'uplinks'.tr(),
                 adminService.getUplinksLastWeek().toString(),
                 Icons.bar_chart_outlined,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16.h),
             Expanded(
               child: _buildMetricCard(
                 context,
-                'Dispositivo Mais Ativo',
+                'mostActiveDevices'.tr(),
                 device?.id ?? 'N/A',
                 Icons.devices_other_outlined,
                 subtext: 'Uplinks: ${uplinks ?? 'N/A'}',
@@ -119,11 +120,11 @@ class _UsersReportTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _buildSectionTitle(context, 'newUsers'.tr()),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         _buildNewUsersChart(context, adminService.getNewUsersByWeek()),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         _buildSectionTitle(context, 'recentlyRegisteredUsers'.tr()),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Card(
           child: Column(
             children: recentUsers
@@ -158,7 +159,7 @@ class _DevicesReportTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _buildSectionTitle(context, 'inactiveDevices'.tr()),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Card(
           color: Theme.of(context).colorScheme.errorContainer,
           child: Column(
@@ -183,9 +184,9 @@ class _DevicesReportTab extends StatelessWidget {
                       .toList(),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         _buildSectionTitle(context, 'deviceDistribution'.tr()),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         _buildDeviceDistributionChart(context, deviceDistribution),
       ],
     );
@@ -202,14 +203,14 @@ class _NetworkReportTab extends StatelessWidget {
     final avgRssi = adminService.getAverageRssiPerGateway();
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       children: [
         _buildSectionTitle(context, 'uplinkDistributionByGateway'.tr()),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         _buildGatewayPieChart(context, uplinksByGateway),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         _buildSectionTitle(context, 'averageSingleQuality'.tr()),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Card(
           child: Column(
             children: avgRssi.entries
@@ -246,14 +247,14 @@ Widget _buildMetricCard(
 }) {
   return Card(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 8),
+          Icon(icon, size: 28.sp, color: Theme.of(context).colorScheme.primary),
+          SizedBox(height: 8.h),
           Text(title, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             value,
             style: Theme.of(
@@ -272,7 +273,7 @@ Widget _buildMetricCard(
 
 Widget _buildGrowthChart(BuildContext context, GrowthData data) {
   return SizedBox(
-    height: 200,
+    height: 200.h,
     child: LineChart(
       LineChartData(
         gridData: const FlGridData(show: false),
@@ -286,7 +287,7 @@ Widget _buildGrowthChart(BuildContext context, GrowthData data) {
             ),
             isCurved: true,
             color: Colors.blue,
-            barWidth: 3,
+            barWidth: 3.w,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
           ),
@@ -297,7 +298,7 @@ Widget _buildGrowthChart(BuildContext context, GrowthData data) {
             ),
             isCurved: true,
             color: Colors.green,
-            barWidth: 3,
+            barWidth: 3.w,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
           ),
@@ -309,7 +310,7 @@ Widget _buildGrowthChart(BuildContext context, GrowthData data) {
 
 Widget _buildNewUsersChart(BuildContext context, Map<int, int> data) {
   return SizedBox(
-    height: 200,
+    height: 200.h,
     child: BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -340,7 +341,7 @@ Widget _buildNewUsersChart(BuildContext context, Map<int, int> data) {
                   BarChartRodData(
                     toY: e.value.toDouble(),
                     color: Colors.blueAccent,
-                    width: 15,
+                    width: 15.w,
                   ),
                 ],
               ),
@@ -360,7 +361,7 @@ Widget _buildDeviceDistributionChart(
   final topEntries = sortedEntries.take(5).toList();
 
   return SizedBox(
-    height: 200,
+    height: 200.h,
     child: BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -380,7 +381,7 @@ Widget _buildDeviceDistributionChart(
               showTitles: true,
               getTitlesWidget: (value, meta) => Text(
                 topEntries[value.toInt()].key,
-                style: const TextStyle(fontSize: 10),
+                style: TextStyle(fontSize: 10.sp),
               ),
               reservedSize: 30,
             ),
@@ -394,7 +395,7 @@ Widget _buildDeviceDistributionChart(
               BarChartRodData(
                 toY: topEntries[i].value.toDouble(),
                 color: Colors.green,
-                width: 15,
+                width: 15.w,
               ),
             ],
           ),
@@ -415,7 +416,7 @@ Widget _buildGatewayPieChart(BuildContext context, Map<String, int> data) {
   int colorIndex = 0;
 
   return SizedBox(
-    height: 200,
+    height: 200.h,
     child: PieChart(
       PieChartData(
         sections: data.entries.map((entry) {
@@ -424,12 +425,12 @@ Widget _buildGatewayPieChart(BuildContext context, Map<String, int> data) {
             value: entry.value.toDouble(),
             title: '${entry.value}',
             color: color,
-            radius: 80,
-            titleStyle: const TextStyle(fontWeight: FontWeight.bold),
+            radius: 80.r,
+            titleStyle: TextStyle(fontWeight: FontWeight.bold),
           );
         }).toList(),
         sectionsSpace: 4,
-        centerSpaceRadius: 40,
+        centerSpaceRadius: 40.r,
       ),
     ),
   );

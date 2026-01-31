@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/app_theme.dart';
+import 'package:myapp/providers/analytics_provider.dart';
+import 'package:myapp/services/battery_level_history/battery_level.dart';
 import 'package:myapp/services/user_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +31,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
     name: 'Pager1',
   );
-
+  BatteryTracker.startTracking();
   final prefs = await SharedPreferences.getInstance();
   final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
   final authService = AuthService();
@@ -71,7 +73,7 @@ class MyApp extends StatelessWidget {
         // Serviço de background para processar uplinks
         Provider<UplinkProcessingService>(
           create: (_) => UplinkProcessingService(),
-          lazy: false, // Garante que o serviço seja criado imediatamente
+          lazy: false, // Ensure that the service is created immediately.
         ),
         // Serviços de Dados e Lógica de Negócios
         ChangeNotifierProvider<AdminService>(create: (_) => AdminService()),
@@ -86,6 +88,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<GroupProvider>(create: (_) => GroupProvider()),
         ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
         ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AnalyticsProvider()..listenAnalytics(),
+        ),
         // Providers com Dependências (ProxyProviders)
         StreamProvider<User?>(
           create: (context) => context.read<AuthService>().authStateChanges,

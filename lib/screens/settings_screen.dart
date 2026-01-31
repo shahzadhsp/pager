@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/providers/theme_provider.dart';
+import 'package:myapp/screens/battery_history/battery_history_screen.dart';
 import 'package:myapp/screens/faq_screen.dart';
 import 'package:myapp/screens/language/language_setting_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
@@ -127,16 +128,24 @@ class SettingsScreen extends StatelessWidget {
           subtitle: Text('profileSubtitle'.tr()),
           onTap: () {
             // Profile screen ya future action
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(content: Text('Profile screen coming soon')),
-            // );
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ProfileScreen()),
             );
           },
         ),
-
+        ListTile(
+          leading: const Icon(Icons.battery_charging_full),
+          title: Text('batteryHistory'.tr()),
+          subtitle: Text('viewBatteryUsage'.tr()),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BatteryHistoryScreen()),
+            );
+          },
+        ),
         ListTile(
           leading: const Icon(Icons.dark_mode),
           title: const Text('Dark Mode'),

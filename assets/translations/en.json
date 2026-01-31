@@ -207,5 +207,9 @@
     "emailSent": "Password reset email sent Please check your inbox or spam folder.",
     "enterYourEmail": "Enter your email to receive password reset instructions.",
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "uplinks": "Uplinks in the Last Week",
+    "mostActiveDevices": "Most Active Devices",
+    "batteryHistory": "Battery History",
+    "viewBatteryUsage": "View battery level over time"
 }

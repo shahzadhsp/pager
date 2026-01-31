@@ -390,6 +390,50 @@ class AdminService with ChangeNotifier {
     return _uplinks.where((u) => u.timestamp.isAfter(cutoffDate)).length;
   }
 
+  // --- Send uplink to Firebase Realtime Database ---
+  Future<void> sendUplink(
+    String deviceId,
+    String groupId, {
+    Map<String, dynamic>? payload,
+  }) async {
+    try {
+      final db = FirebaseDatabase.instance.ref('uplinks');
+
+      // payload optional, default example
+      final uplinkPayload =
+          payload ??
+          {
+            'temp': 20 + Random().nextDouble() * 10,
+            'humidity': 40 + Random().nextDouble() * 20,
+          };
+
+      await db.push().set({
+        'deviceId': deviceId,
+        'groupId': groupId,
+        'timestamp': ServerValue.timestamp,
+        'payload': uplinkPayload,
+      });
+
+      // Also update local list (_uplinks) for charts/reporting
+      _uplinks.add(
+        AdminUplink(
+          id: 'local_${DateTime.now().millisecondsSinceEpoch}',
+          deviceId: deviceId,
+          gatewayId: 'local_gateway',
+          timestamp: DateTime.now(),
+          payload: uplinkPayload,
+          rssi: -50 + Random().nextInt(20),
+        ),
+      );
+
+      notifyListeners();
+      debugPrint('Uplinks count: ${_uplinks.length}');
+      debugPrint('✅ Uplink sent for device $deviceId');
+    } catch (e) {
+      debugPrint('❌ Error sending uplink: $e');
+    }
+  }
+
   MostActiveDevice getMostActiveDevice() {
     if (_uplinks.isEmpty) return (null, 0);
     final uplinkCounts = groupBy(_uplinks, (uplink) => uplink.deviceId);
