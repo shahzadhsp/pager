@@ -205,6 +205,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[messages.length - 1 - index];
+                      if (message.status == 'deleted') {
+                        return const SizedBox.shrink();
+                      }
                       final bool isMe = message.senderId == _currentUserId;
 
                       String? senderName;
@@ -451,19 +454,7 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
 
-            Text(
-              message.status == 'deleted'
-                  ? 'This message was deleted'
-                  : message.text,
-              style: TextStyle(
-                fontStyle: message.status == 'deleted'
-                    ? FontStyle.italic
-                    : FontStyle.normal,
-                color: message.status == 'deleted'
-                    ? Colors.grey
-                    : Colors.black87,
-              ),
-            ),
+            Text(message.text, style: const TextStyle(color: Colors.black87)),
             SizedBox(height: 2.h),
             // ⏰ Time + ✔✔ Read status (Bottom Right)
             Row(

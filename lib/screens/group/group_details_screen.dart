@@ -96,7 +96,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       content: '${'areYouSureRemove'.tr()} ${member.name}?',
     );
     if (confirmed == true && mounted) {
-      final groupService = Provider.of<GroupService>(context, listen: false);
+      final groupService = Provider.of<GroupService>(context, listen: true);
       try {
         await groupService.removeMemberFromGroup(widget.groupId, member.name);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,6 +145,46 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     }
   }
 
+  void _showEditGroupNameDialog(
+    BuildContext context,
+    String groupId,
+    String oldName,
+  ) {
+    final controller = TextEditingController(text: oldName);
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Edit group name'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Enter group name'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isEmpty || newName == oldName) return;
+
+              await context.read<ChatProvider>().updateGroupName(
+                groupId,
+                newName,
+              );
+
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<bool?> _showConfirmationDialog({
     required String title,
     required String content,
@@ -187,75 +227,108 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(groupConversation.name)),
-      body: FutureBuilder<List<GroupMember>>(
-        future: _membersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                '${StringTranslateExtension('errorLoadingMembers').tr()}: ${snapshot.error ?? ''}',
-              ),
-            );
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('thisGroupNoHasMembers').tr(),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () => context.go('/'),
-                    child: Text('backToHome').tr(),
-                  ),
-                ],
-              ),
-            );
-          }
+    return Consumer<ChatProvider>(
+      builder: (context, chatProvider, child) {
+        final groupConversation = chatProvider.getConversationById(
+          widget.groupId,
+        );
 
-          final members = snapshot.data!;
-          final userMembers = members.where((m) => !m.isDevice).toList();
-          final deviceMembers = members.where((m) => m.isDevice).toList();
+        if (groupConversation == null) {
+          return const Scaffold(body: Center(child: Text('groupNotFound')));
+        }
 
-          return ListView(
-            children: [
-              if (userMembers.isNotEmpty)
-                _buildMemberList(context, 'users'.tr(), userMembers),
-              if (deviceMembers.isNotEmpty)
-                _buildMemberList(context, 'devices'.tr(), deviceMembers),
-              Divider(height: 32.h),
-              ListTile(
-                leading: const Icon(Icons.person_add, color: Colors.green),
-                title: Text('addMember'.tr()),
-                onTap: () async {
-                  // Navega e depois atualiza a lista quando voltar
-                  // Navigate and then update the list when you return.
-                  final result = await context.push(
-                    '/chat/${widget.groupId}/details/add-members',
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(groupConversation.name),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  _showEditGroupNameDialog(
+                    context,
+                    widget.groupId,
+                    groupConversation.name,
                   );
-                  _refreshMembers();
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.exit_to_app, color: Colors.red.shade700),
-                title: Text(
-                  'leaveGroup'.tr(),
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: _handleLeaveGroup,
-              ),
             ],
-          );
-        },
-      ),
+          ),
+          body: FutureBuilder<List<GroupMember>>(
+            future: _membersFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    '${'errorLoadingMembers'.tr()}: ${snapshot.error}',
+                  ),
+                );
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('thisGroupNoHasMembers'.tr()),
+                      SizedBox(height: 16.h),
+                      ElevatedButton(
+                        onPressed: () => context.go('/'),
+                        child: Text('backToHome'.tr()),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final members = snapshot.data!;
+              final userMembers = members.where((m) => !m.isDevice).toList();
+              final deviceMembers = members.where((m) => m.isDevice).toList();
+
+              return ListView(
+                children: [
+                  if (userMembers.isNotEmpty)
+                    _buildMemberList(context, 'users'.tr(), userMembers),
+
+                  if (deviceMembers.isNotEmpty)
+                    _buildMemberList(context, 'devices'.tr(), deviceMembers),
+
+                  Divider(height: 32.h),
+
+                  ListTile(
+                    leading: const Icon(Icons.person_add, color: Colors.green),
+                    title: Text('addMember'.tr()),
+                    onTap: () async {
+                      await context.push(
+                        '/chat/${widget.groupId}/details/add-members',
+                      );
+                      _refreshMembers();
+                    },
+                  ),
+
+                  ListTile(
+                    leading: Icon(
+                      Icons.exit_to_app,
+                      color: Colors.red.shade700,
+                    ),
+                    title: Text(
+                      'leaveGroup'.tr(),
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: _handleLeaveGroup,
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

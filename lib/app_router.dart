@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/screens/group/group_details_screen.dart';
 // Correção dos imports para os caminhos corretos dos ficheiros
 import 'screens/device_screen.dart';
 import 'screens/admin_device_list_screen.dart';
@@ -10,7 +10,6 @@ import 'screens/admin/admin_screen.dart'; // Corrigido
 import 'screens/chat/conversation_list_screen.dart'; // Corrigido
 import 'screens/chat/chat_screen.dart';
 import 'screens/groups/create_group_screen.dart';
-import 'screens/groups/group_detail_screen.dart';
 import 'screens/groups/group_list_screen.dart'; // Corrigido
 import 'screens/home_screen.dart';
 import 'screens/legal/legal_acceptance_screen.dart';
@@ -101,7 +100,7 @@ class AppRouter {
               GoRoute(
                 path: ':id',
                 builder: (BuildContext context, GoRouterState state) =>
-                    GroupDetailScreen(groupId: state.pathParameters['id']!),
+                    GroupDetailsScreen(groupId: state.pathParameters['id']!),
                 routes: [
                   //  GoRoute(
                   //   path: 'manage-devices',

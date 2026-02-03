@@ -3,8 +3,9 @@ class ChatMessageModel {
   final String senderId;
   final String text;
   final int timestamp;
-  final String status; // Add this line
+  final String status;
   final bool edited;
+  final bool isDeleted;
 
   ChatMessageModel({
     required this.messageId,
@@ -12,7 +13,8 @@ class ChatMessageModel {
     required this.text,
     required this.timestamp,
     this.status = '',
-    this.edited = false, // And this line
+    this.edited = false,
+    this.isDeleted = false,
   });
 
   // MODIFICADO: O construtor de fábrica agora é mais robusto e chamado de 'fromJson'
@@ -27,6 +29,7 @@ class ChatMessageModel {
           (json['senderId'] as String?) ??
           (json['from_mac'] as String? ?? 'unknown').replaceAll(':', ''),
       edited: json['edited'] == true,
+      isDeleted: json['isDeleted'] == true,
       // Mensagens de operador usam 'text', de dispositivo T9 usam 'msg', de status usam 'status'
       text:
           (json['text'] as String?) ??
@@ -46,6 +49,7 @@ class ChatMessageModel {
       'timestamp': timestamp,
       'status': status,
       'edited': edited,
+      'isDeleted': isDeleted,
     };
   }
 

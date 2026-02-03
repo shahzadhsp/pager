@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/providers/theme_provider.dart';
-import 'package:myapp/screens/groups/group_detail_screen.dart';
+import 'package:myapp/screens/group/group_details_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/search_provider.dart';
@@ -73,7 +73,7 @@ class ConversationListScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return const GroupDetailScreen(groupId: '');
+                          return const GroupDetailsScreen(groupId: '');
                         },
                       ),
                     );
