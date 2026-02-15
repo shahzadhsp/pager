@@ -42,19 +42,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
             children: const [
               OnboardingPage(
-                imagePath: '',
                 title: 'Connect Instantly',
                 description:
                     'Manage and communicate with all your devices seamlessly.',
               ),
               OnboardingPage(
-                imagePath: '',
                 title: 'Stay in Control',
                 description:
                     'Monitor status, send commands, and receive real-time alerts.',
               ),
               OnboardingPage(
-                imagePath: '',
                 title: 'Secure & Reliable',
                 description:
                     'Your data is protected with end-to-end encryption.',
@@ -125,13 +122,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class OnboardingPage extends StatelessWidget {
-  final String imagePath;
   final String title;
   final String description;
 
   const OnboardingPage({
     super.key,
-    required this.imagePath,
+
     required this.title,
     required this.description,
   });
@@ -139,16 +135,6 @@ class OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(imagePath),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.5),
-            BlendMode.darken,
-          ),
-        ),
-      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Column(

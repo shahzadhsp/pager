@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -74,19 +75,26 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
     if (snapshot.exists && snapshot.value is Map) {
       final data = Map<String, dynamic>.from(snapshot.value as Map);
-
       final name = (data['name'] ?? '').toString().trim();
       final email = (data['email'] ?? '').toString().trim();
-
       return {'name': name, 'email': email};
     }
 
     return {'name': '', 'email': uid};
   }
 
+  // refresh members list
+  // void _refreshMembers() {
+  //   setState(() {
+  //     _membersFuture = _loadMembers();
+  //   });
+  // }
   void _refreshMembers() {
     setState(() {
-      _membersFuture = _loadMembers();
+      _membersFuture = Future.delayed(
+        const Duration(milliseconds: 50),
+        () => _loadMembers(),
+      );
     });
   }
 
@@ -96,7 +104,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       content: '${'areYouSureRemove'.tr()} ${member.name}?',
     );
     if (confirmed == true && mounted) {
-      final groupService = Provider.of<GroupService>(context, listen: true);
+      final groupService = Provider.of<GroupService>(context, listen: false);
       try {
         await groupService.removeMemberFromGroup(widget.groupId, member.name);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,6 +113,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             backgroundColor: Colors.green,
           ),
         );
+        log('Member ${member.name} removed from group ${widget.groupId}');
         _refreshMembers();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,6 +151,37 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           ),
         );
       }
+    }
+  }
+
+  /* ================= Handle Delete Group ================= */
+  Future<void> _handleDeleteGroup() async {
+    final confirmed = await _showConfirmationDialog(
+      title: 'deleteGroup'.tr(),
+      content: 'deleteGroupConfirmation'.tr(),
+      confirmText: 'delete'.tr(),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await context.read<ChatProvider>().deleteGroup(widget.groupId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('groupDeleted'.tr()),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      context.go('/');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${'errorDeletingGroup'.tr()} $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -251,10 +291,86 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   );
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  _handleDeleteGroup();
+                },
+              ),
             ],
           ),
-          body: FutureBuilder<List<GroupMember>>(
-            future: _membersFuture,
+          // body: FutureBuilder<List<GroupMember>>(
+          //   future: _membersFuture,
+          //   builder: (context, snapshot) {
+          //     if (snapshot.connectionState == ConnectionState.waiting) {
+          //       return const Center(child: CircularProgressIndicator());
+          //     }
+
+          //     if (snapshot.hasError) {
+          //       return Center(
+          //         child: Text(
+          //           '${'errorLoadingMembers'.tr()}: ${snapshot.error}',
+          //         ),
+          //       );
+          //     }
+
+          //     if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          //       return Center(
+          //         child: Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Text('thisGroupNoHasMembers'.tr()),
+          //             SizedBox(height: 16.h),
+          //             ElevatedButton(
+          //               onPressed: () => context.go('/'),
+          //               child: Text('backToHome'.tr()),
+          //             ),
+          //           ],
+          //         ),
+          //       );
+          //     }
+
+          //     final members = snapshot.data!;
+          //     final userMembers = members.where((m) => !m.isDevice).toList();
+          //     final deviceMembers = members.where((m) => m.isDevice).toList();
+
+          //     return ListView(
+          //       children: [
+          //         if (userMembers.isNotEmpty)
+          //           _buildMemberList(context, 'users'.tr(), userMembers),
+          //         if (deviceMembers.isNotEmpty)
+          //           _buildMemberList(context, 'devices'.tr(), deviceMembers),
+          //         Divider(height: 32.h),
+          //         ListTile(
+          //           leading: const Icon(Icons.person_add, color: Colors.green),
+          //           title: Text('addMember'.tr()),
+          //           onTap: () async {
+          //             await context.push(
+          //               '/chat/${widget.groupId}/details/add-members',
+          //             );
+          //             _refreshMembers();
+          //           },
+          //         ),
+          //         ListTile(
+          //           leading: Icon(
+          //             Icons.exit_to_app,
+          //             color: Colors.red.shade700,
+          //           ),
+          //           title: Text(
+          //             'leaveGroup'.tr(),
+          //             style: TextStyle(
+          //               color: Colors.red.shade700,
+          //               fontWeight: FontWeight.bold,
+          //             ),
+          //           ),
+          //           onTap: _handleLeaveGroup,
+          //         ),
+          //       ],
+          //     );
+          //   },
+          // ),
+          body: StreamBuilder<List<GroupMember>>(
+            stream: _membersFuture.asStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -305,7 +421,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       await context.push(
                         '/chat/${widget.groupId}/details/add-members',
                       );
-                      _refreshMembers();
                     },
                   ),
 

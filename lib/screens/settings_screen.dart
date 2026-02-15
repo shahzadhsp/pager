@@ -4,6 +4,7 @@ import 'package:myapp/providers/theme_provider.dart';
 import 'package:myapp/screens/battery_history/battery_history_screen.dart';
 import 'package:myapp/screens/faq_screen.dart';
 import 'package:myapp/screens/language/language_setting_screen.dart';
+import 'package:myapp/screens/privacy_policy/privacy_policy.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:provider/provider.dart';
@@ -135,9 +136,13 @@ class SettingsScreen extends StatelessWidget {
           title: Text('privacyPolicy'.tr()),
           subtitle: Text('privacyPolicySubtitle'.tr()),
           onTap: () {
-            ScaffoldMessenger.of(
+            // ScaffoldMessenger.of(
+            //   context,
+            // ).showSnackBar(SnackBar(content: Text('Add This later')));
+            Navigator.push(
               context,
-            ).showSnackBar(SnackBar(content: Text('Add This later')));
+              MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+            );
           },
         ),
         ListTile(

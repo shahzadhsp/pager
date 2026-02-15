@@ -28,12 +28,23 @@ class DBHelper {
     );
   }
 
+  static Future<void> cleanOldData() async {
+    final db = await database;
+
+    final cutoff = DateTime.now()
+        .subtract(const Duration(days: 7))
+        .toIso8601String();
+
+    await db.delete('battery', where: 'time < ?', whereArgs: [cutoff]);
+  }
+
   static Future<void> insert(int level) async {
     final db = await database;
     await db.insert('battery', {
       'level': level,
       'time': DateTime.now().toIso8601String(),
     });
+    await cleanOldData();
   }
 
   static Future<List<Map<String, dynamic>>> getHistory() async {

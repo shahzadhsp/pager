@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -24,13 +25,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     _markAsRead();
-  //   });
-  // }
   @override
   void initState() {
     super.initState();
@@ -142,9 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: const Icon(Icons.info_outline),
               tooltip: 'groupDetails'.tr(),
-              // onPressed: () {
-              //   context.push('/chat/${widget.conversationId}/details');
-              // },
+
               onPressed: () {
                 _analytics.logEvent(
                   name: 'group_details_opened',
@@ -211,11 +203,35 @@ class _ChatScreenState extends State<ChatScreen> {
                       final bool isMe = message.senderId == _currentUserId;
 
                       String? senderName;
-                      if (isGroupChat && !isMe) {
-                        senderName = adminService.getNameForId(
-                          message.senderId,
+                     
+                      if (isGroupChat) {
+                        return StreamBuilder<DatabaseEvent>(
+                          stream: FirebaseDatabase.instance
+                              .ref('users/${message.senderId}/name')
+                              .onValue,
+                          builder: (context, snapshot) {
+                            String senderName = '...';
+
+                            if (snapshot.hasData &&
+                                snapshot.data!.snapshot.exists) {
+                              senderName = snapshot.data!.snapshot.value
+                                  .toString();
+                            }
+
+                            return _MessageBubble(
+                              message: message,
+                              isMe: isMe,
+                              senderName: senderName,
+                            );
+                          },
                         );
                       }
+
+                      // return _MessageBubble(
+                      //   message: message,
+                      //   isMe: isMe,
+                      //   senderName: null,
+                      // );
 
                       bool showDateSeparator = false;
                       if (index == 0) {
@@ -411,6 +427,18 @@ class _MessageBubble extends StatelessWidget {
     final textColor = theme.colorScheme.onSurface;
 
     final showSenderName = senderName != null && senderName!.isNotEmpty;
+    // get user name
+    Stream<String> getUserName(String uid) {
+      return FirebaseDatabase.instance.ref('users/$uid/name').onValue.map((
+        event,
+      ) {
+        if (event.snapshot.exists) {
+          return event.snapshot.value.toString();
+        } else {
+          return 'Desconhecido';
+        }
+      });
+    }
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -454,33 +482,45 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
 
-            Text(message.text, style: const TextStyle(color: Colors.black87)),
-            SizedBox(height: 2.h),
-            // ⏰ Time + ✔✔ Read status (Bottom Right)
-            Row(
-              mainAxisSize: MainAxisSize.min,
+            Stack(
               children: [
-                if (message.edited)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: Text(
-                      'edited'.tr(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                Text(
-                  timeStr,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
+                Padding(
+                  padding: EdgeInsets.only(right: 55.w, bottom: 2.h),
+                  child: Text(
+                    message.text,
+                    style: const TextStyle(color: Colors.black87),
                   ),
                 ),
-                SizedBox(width: 4.w),
-                _buildReadStatus(context, message),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (message.edited)
+                        Padding(
+                          padding: EdgeInsets.only(right: 4.w),
+                          child: Text(
+                            'edited'.tr(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      Text(
+                        timeStr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(width: 3.w),
+                      _buildReadStatus(context, message),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],

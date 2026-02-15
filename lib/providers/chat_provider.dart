@@ -57,24 +57,12 @@ class ChatProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      _listenForUserChats(); // 1-to-1 + device chats
-      _listenForGroups(); // group chats
+      _listenForUserChats();
+      _listenForGroups();
     });
   }
 
-  // Future<void> updateGroupName(String groupId, String newName) async {
-  //   final uid = FirebaseAuth.instance.currentUser!.uid;
-
-  //   // 1️⃣ Update group info
-  //   await _dbRef.child('groups/$groupId').update({
-  //     'name': newName,
-  //     'updatedBy': uid,
-  //     'updatedAt': ServerValue.timestamp,
-  //   });
-
-  //   // 2️⃣ Update conversation list item
-  //   await _dbRef.child('conversations/$groupId').update({'name': newName});
-  // }
+  /* ================= GROUPS ================= */
   Future<void> updateGroupName(String groupId, String newName) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -83,8 +71,6 @@ class ChatProvider with ChangeNotifier {
       'updatedBy': uid,
       'updatedAt': ServerValue.timestamp,
     });
-
-    // ❌ REMOVE conversations update — NOT USED
   }
 
   /* ================= USER CHATS ================= */
@@ -93,100 +79,48 @@ class ChatProvider with ChangeNotifier {
     if (_currentUser == null) return;
 
     final ref = _dbRef.child('user_chats/${_currentUser!.uid}');
-    _userChatsSubscription = ref.onValue.listen(
-      (event) {
-        if (!event.snapshot.exists) {
-          _isLoading = false;
-          notifyListeners();
-          return;
+    _userChatsSubscription = ref.onValue.listen((event) {
+      if (!event.snapshot.exists) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+
+      for (final entry in data.entries) {
+        final chatId = entry.key;
+        final chatData = Map<String, dynamic>.from(entry.value);
+
+        final isGroup = chatData['isGroup'] == true;
+
+        final existing = _conversationsMap[chatId];
+
+        // 🔥 GROUP → name overwrite mat karo
+        if (isGroup && existing != null) {
+          _conversationsMap[chatId] = existing.copyWith(
+            unreadCount: chatData['unreadCount'] ?? existing.unreadCount,
+          );
+          continue;
         }
 
-        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final conversation = ConversationModel.fromFirebase(chatId, chatData);
 
-        for (final entry in data.entries) {
-          final chatId = entry.key;
-          final chatData = Map<String, dynamic>.from(entry.value);
-
-          final conversation = ConversationModel.fromFirebase(chatId, chatData);
-
-          if (!_conversationsMap.containsKey(chatId)) {
-            _listenForLastMessage(chatId);
-
-            if (!conversation.isGroup) {
-              _listenForDeviceStatus(chatId);
-            }
+        if (!_conversationsMap.containsKey(chatId)) {
+          _listenForLastMessage(chatId);
+          if (!conversation.isGroup) {
+            _listenForDeviceStatus(chatId);
           }
-
-          _conversationsMap[chatId] = conversation;
         }
 
-        _isLoading = false;
-        notifyListeners();
-      },
-      onError: (e, s) {
-        _error = e.toString();
-        _isLoading = false;
-        developer.log('User chats error', error: e, stackTrace: s);
-        notifyListeners();
-      },
-    );
+        _conversationsMap[chatId] = conversation;
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
-  /* ================= GROUP CHATS ================= */
-
-  // void _listenForGroups() {
-  //   if (_currentUser == null) return;
-
-  //   final ref = _dbRef.child('groups');
-  //   _groupsSubscription = ref.onValue.listen((event) {
-  //     if (!event.snapshot.exists) return;
-
-  //     final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-
-  //     for (final entry in data.entries) {
-  //       final groupId = entry.key;
-  //       final groupData = Map<String, dynamic>.from(entry.value);
-
-  //       final members = groupData['members'] as Map<dynamic, dynamic>?;
-
-  //       if (members == null || !members.containsKey(_currentUser!.uid)) {
-  //         continue;
-  //       }
-
-  //       // if (!_conversationsMap.containsKey(groupId)) {
-  //       //   _listenForLastMessage(groupId);
-  //       // }
-
-  //       // _conversationsMap[groupId] = ConversationModel(
-  //       //   id: groupId,
-  //       //   name: groupData['name'] ?? '',
-  //       //   isGroup: true,
-  //       //   lastMessage: '',
-  //       //   lastMessageTimestamp: 0,
-  //       //   unreadCount: 0,
-  //       // );
-  //       final existing = _conversationsMap[groupId];
-
-  //       _conversationsMap[groupId] = existing != null
-  //           ? existing.copyWith(
-  //               name: groupData['name'] ?? existing.name,
-  //               isGroup: true,
-  //             )
-  //           : ConversationModel(
-  //               id: groupId,
-  //               name: groupData['name'] ?? '',
-  //               isGroup: true,
-  //               lastMessage: '',
-  //               lastMessageTimestamp: 0,
-  //               unreadCount: 0,
-  //             );
-  //       _listenForLastMessage(groupId);
-  //     }
-
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   });
-  // }
   void _listenForGroups() {
     if (_currentUser == null) return;
 
@@ -483,5 +417,49 @@ class ChatProvider with ChangeNotifier {
     final msgRef = _dbRef.child('chats/$conversationId/messages/$messageId');
 
     await msgRef.update({'isDeleted': true});
+  }
+  /* ================= Delete Groups ================= */
+
+  Future<void> deleteGroup(String groupId) async {
+    if (_currentUser == null) return;
+
+    try {
+      final groupRef = _dbRef.child('groups/$groupId');
+      final groupSnap = await groupRef.get();
+
+      if (!groupSnap.exists) return;
+
+      final groupData = Map<String, dynamic>.from(groupSnap.value as Map);
+      final members = Map<String, dynamic>.from(groupData['members'] ?? {});
+
+      final Map<String, dynamic> updates = {};
+
+      // 1️⃣ Remove group from each user's chat list
+      for (final uid in members.keys) {
+        updates['/user_chats/$uid/$groupId'] = null;
+      }
+
+      // 2️⃣ Remove group data
+      updates['/groups/$groupId'] = null;
+
+      // 3️⃣ Remove messages
+      updates['/chats/$groupId'] = null;
+
+      // 🔥 Atomic delete
+      await _dbRef.update(updates);
+
+      // 4️⃣ Remove locally
+      _conversationsMap.remove(groupId);
+
+      notifyListeners();
+    } catch (e, s) {
+      developer.log(
+        'deleteGroup failed',
+        name: 'chat.provider',
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
   }
 }

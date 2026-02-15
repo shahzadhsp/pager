@@ -181,6 +181,18 @@ class _HomeScreenState extends State<HomeScreen>
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
           ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart_outlined),
+            tooltip: 'Shopping Cart',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('shoppingCartComingSoon'.tr()),
+                  backgroundColor: Colors.blueAccent,
+                ),
+              );
+            },
+          ),
           _isAdmin
               ? IconButton(
                   icon: const Icon(Icons.admin_panel_settings_outlined),
@@ -205,7 +217,6 @@ class _HomeScreenState extends State<HomeScreen>
     if (_isSearching) return null;
 
     final fabRoutes = ['/scan', '/groups/create', '/scan'];
-
     final fabIcons = [Icons.message, Icons.group_add, Icons.qr_code_scanner];
 
     return FloatingActionButton(

@@ -211,5 +211,13 @@
     "uplinks": "Uplinks in the Last Week",
     "mostActiveDevices": "Most Active Devices",
     "batteryHistory": "Battery History",
-    "viewBatteryUsage": "View battery level over time"
+    "viewBatteryUsage": "View battery level over time",
+    "deleteGroup": "Delete Group",
+    "deleteGroupConfirmation": "Are you sure you want to delete this group? This action cannot be undone.",
+    "delete": "Delete",
+    "groupDeleted": "Group deleted successfully.",
+    "errorDeletingGroup": "Error deleting group.",
+    "shoppingCartComingSoon": "Shopping cart feature coming soon!",
+    "batteryLevelHistory": "Battery Level History",
+    "noBatteryData": "No battery data available yet."
 }
