@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/screens/webview_shopping_scree/webview_shopping_screen.dart';
 import 'package:myapp/services/admin_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/device_provider.dart';
@@ -144,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen>
           icon: const Icon(Icons.arrow_back),
           onPressed: _toggleSearch,
         ),
-        title: TextField(
+        title: TextFormField(
           controller: _searchController,
           autofocus: true,
           decoration: InputDecoration(
@@ -181,18 +182,31 @@ class _HomeScreenState extends State<HomeScreen>
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
           ),
+          // IconButton(
+          //   icon: const Icon(Icons.shopping_cart_outlined),
+          //   tooltip: 'Shopping Cart',
+          //   onPressed: () {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(
+          //         content: Text('shoppingCartComingSoon'.tr()),
+          //         backgroundColor: Colors.blueAccent,
+          //       ),
+          //     );
+          //   },
+          // ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             tooltip: 'Shopping Cart',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('shoppingCartComingSoon'.tr()),
-                  backgroundColor: Colors.blueAccent,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ShoppingWebViewScreen(),
                 ),
               );
             },
           ),
+
           _isAdmin
               ? IconButton(
                   icon: const Icon(Icons.admin_panel_settings_outlined),

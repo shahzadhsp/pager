@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -119,6 +121,10 @@ class ConversationListScreen extends StatelessWidget {
             horizontal: 16.0,
             vertical: 8.0,
           ),
+          onLongPress: () {
+            _showDeleteConversationDialog(context, conversation);
+          },
+
           leading: CircleAvatar(
             radius: 28.r,
             backgroundColor: theme.colorScheme.primaryContainer,
@@ -170,6 +176,43 @@ class ConversationListScreen extends StatelessWidget {
 
           trailing: _TrailingInfo(conversation: conversation),
           onTap: () => context.push('/chat/${conversation.id}'),
+        );
+      },
+    );
+  }
+
+  void _showDeleteConversationDialog(
+    BuildContext context,
+    ConversationModel conversation,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete conversation"),
+          content: Text(
+            "Are you sure you want to delete ${conversation.name}?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+
+                await context.read<ChatProvider>().deleteConversation(
+                  conversation.id,
+                );
+                log('conversation id ${conversation.id} deleted');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Conversation deleted")),
+                );
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
         );
       },
     );

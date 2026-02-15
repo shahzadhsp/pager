@@ -462,4 +462,14 @@ class ChatProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  // delete conversation
+  Future<void> deleteConversation(String conversationId) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    await FirebaseDatabase.instance
+        .ref('user_chats/$uid/$conversationId')
+        .remove();
+  }
 }

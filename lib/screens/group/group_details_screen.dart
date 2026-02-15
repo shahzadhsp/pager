@@ -106,14 +106,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     if (confirmed == true && mounted) {
       final groupService = Provider.of<GroupService>(context, listen: false);
       try {
-        await groupService.removeMemberFromGroup(widget.groupId, member.name);
+        await groupService.removeMemberFromGroup(widget.groupId, member.id);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${member.name} ${'wasRemoved'.tr()}'),
             backgroundColor: Colors.green,
           ),
         );
-        log('Member ${member.name} removed from group ${widget.groupId}');
+        log(
+          'Member ${member.name}Member id ${member.id} removed from group ${widget.groupId}',
+        );
         _refreshMembers();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -121,6 +123,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             content: Text('${'errorRemovingMember'.tr()} $e'),
             backgroundColor: Colors.red,
           ),
+        );
+        log(
+          'Error removing member ${member.name} from group ${widget.groupId}: $e',
         );
       }
     }
