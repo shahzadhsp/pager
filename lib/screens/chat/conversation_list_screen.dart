@@ -445,7 +445,6 @@ class ConversationListScreen extends StatelessWidget {
                     );
                     userName = userMap['name'] ?? otherUserId;
                   }
-
                   // Safe timestamp conversion
                   int timestamp = 0;
                   if (conv['lastMessageTimestamp'] != null) {
@@ -458,6 +457,9 @@ class ConversationListScreen extends StatelessWidget {
                   }
 
                   return ListTile(
+                    onLongPress: () {
+                      _showConversationOptions(context, conv['id'], userName);
+                    },
                     leading: CircleAvatar(
                       child: Text(userName[0].toUpperCase()),
                     ),
@@ -491,6 +493,61 @@ class ConversationListScreen extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+
+  void _showConversationOptions(
+    BuildContext context,
+    String conversationId,
+    String userName,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: Text(
+              "Delete chat with $userName",
+              style: const TextStyle(color: Colors.red),
+            ),
+            onTap: () async {
+              Navigator.pop(context);
+
+              /// confirm dialog
+              final confirm = await showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Delete Conversation"),
+                  content: const Text(
+                    "Are you sure you want to delete this chat?",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        "Delete",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                await context.read<OneToOneChatProvider>().deleteConversation(
+                  conversationId,
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

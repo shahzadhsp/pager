@@ -33,39 +33,6 @@ class _BatteryHistoryScreenState extends State<BatteryHistoryScreen> {
     super.dispose();
   }
 
-  // Future<void> loadData() async {
-  //   final data = await DBHelper.getHistory();
-  //   spots = data.map((e) {
-  //     final time = DateTime.parse(e['time']);
-  //     final x = time.millisecondsSinceEpoch.toDouble();
-  //     final y = e['level'].toDouble();
-  //     return FlSpot(x, y);
-  //   }).toList();
-  //   setState(() {});
-  //   double baseTime = DateTime.parse(
-  //     data.first['time'],
-  //   ).millisecondsSinceEpoch.toDouble();
-  //   spots = data.map((e) {
-  //     final time = DateTime.parse(e['time']);
-  //     final x = time.millisecondsSinceEpoch.toDouble() - baseTime;
-  //     final y = e['level'].toDouble();
-  //     return FlSpot(x, y);
-  //   }).toList();
-  // }
-  // Future<void> loadData() async {
-  //   final data = await DBHelper.getHistory();
-  //   if (data.isEmpty) return;
-  //   double baseTime = DateTime.parse(
-  //     data.first['time'],
-  //   ).millisecondsSinceEpoch.toDouble();
-  //   spots = data.map((e) {
-  //     final time = DateTime.parse(e['time']);
-  //     final x = time.millisecondsSinceEpoch.toDouble() - baseTime;
-  //     final y = e['level'].toDouble();
-  //     return FlSpot(x, y);
-  //   }).toList();
-  //   setState(() {});
-  // }
   Future<void> loadData() async {
     final data = await DBHelper.getHistory();
 

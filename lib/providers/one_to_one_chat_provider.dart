@@ -94,4 +94,34 @@ class OneToOneChatProvider extends ChangeNotifier {
 
     return conversationId;
   }
+
+  /// DELETE MESSAGE
+  Future<void> deleteMessage(String conversationId, String messageKey) async {
+    await db.child('messages/$conversationId/$messageKey').remove();
+  }
+
+  /// EDIT MESSAGE
+  Future<void> editMessage(
+    String conversationId,
+    String messageKey,
+    String newText,
+  ) async {
+    await db.child('messages/$conversationId/$messageKey').update({
+      "text": newText,
+      "edited": true,
+    });
+  }
+
+  /// DELETE WHOLE CONVERSATION
+  Future<void> deleteConversation(String conversationId) async {
+    try {
+      /// delete all messages
+      await db.child('messages/$conversationId').remove();
+
+      /// delete conversation node
+      await db.child('conversation/$conversationId').remove();
+    } catch (e) {
+      debugPrint("Delete Conversation Error: $e");
+    }
+  }
 }
