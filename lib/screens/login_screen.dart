@@ -56,10 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (user == null) {
-        _showErrorDialog(
-          'Login Error',
-          'Login failed. Please check credentials.',
-        );
+        _showErrorDialog('loginError'.tr(), 'loginFailed'.tr());
         return;
       }
 
@@ -95,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       log("Login exception: $e");
-      _showErrorDialog('Login Error', 'Something went wrong.');
+      _showErrorDialog('loginError'.tr(), 'someThingWentRong'.tr());
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -103,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _resetPassword() async {
     if (_emailController.text.trim().isEmpty) {
-      _showErrorDialog('Error', 'enterYourEmail'.tr());
+      _showErrorDialog('error'.tr(), 'enterYourEmail'.tr());
       return;
     }
 
@@ -152,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Welcome Back',
+                        'welcomBack'.tr(),
                         style: Theme.of(context).textTheme.headlineLarge
                             ?.copyWith(
                               color: Colors.white,
@@ -160,11 +157,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Login to continue',
+                      Text(
+                        'loginToContinue'.tr(),
                         style: TextStyle(color: Colors.white70),
                       ),
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30.h),
 
                       /// Form
                       Form(
@@ -173,15 +170,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             _inputField(
                               controller: _emailController,
-                              label: 'Email',
+                              label: 'email'.tr(),
                               icon: Icons.email_outlined,
                               validator: (v) =>
-                                  v!.contains('@') ? null : 'Invalid email',
+                                  v!.contains('@') ? null : 'invalidEmail'.tr(),
                             ),
                             const SizedBox(height: 16),
                             _inputField(
                               controller: _passwordController,
-                              label: 'Password',
+                              label: 'password'.tr(),
                               icon: Icons.lock_outline,
                               obscure: !_isPasswordVisible,
                               suffix: IconButton(
@@ -194,14 +191,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _isPasswordVisible = !_isPasswordVisible;
                                 }),
                               ),
-                              validator: (v) =>
-                                  v!.length < 6 ? 'Min 6 characters' : null,
+                              validator: (v) => v!.length < 6
+                                  ? 'minSixCharacters'.tr()
+                                  : null,
                             ),
                           ],
                         ),
                       ),
 
-                      const SizedBox(height: 25),
+                      SizedBox(height: 25.h),
 
                       /// Login Button
                       _isLoading
@@ -218,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   backgroundColor: Colors.blueAccent,
                                 ),
                                 child: Text(
-                                  'Login',
+                                  'login'.tr(),
                                   style: TextStyle(fontSize: 18.sp),
                                 ),
                               ),
@@ -229,8 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 12.h),
                       TextButton(
                         onPressed: _resetPassword,
-                        child: const Text(
-                          'Forgot password?',
+                        child: Text(
+                          'forgotPassword'.tr(),
                           style: TextStyle(color: Colors.white70),
                         ),
                       ),
@@ -241,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 15.h),
                       SignInButton(
                         Buttons.Google,
-                        text: 'Sign in with Google',
+                        text: 'signInWithGoogle'.tr(),
                         onPressed: () => authService.signInWithGoogle(context),
                       ),
 
@@ -264,8 +262,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        child: const Text(
-                          "Don't have an account? Sign up",
+                        child: Text(
+                          "${"dontHaveAccount".tr()} ${"signUp".tr()}",
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

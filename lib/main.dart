@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/app_locales.dart';
 import 'package:myapp/core/app_theme.dart';
 import 'package:myapp/providers/analytics_provider.dart';
 import 'package:myapp/providers/one_to_one_chat_provider.dart';
@@ -36,46 +37,39 @@ void main() async {
   BatteryTracker.startTracking();
   final prefs = await SharedPreferences.getInstance();
   final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+  final bool hasSelectedLanguage =
+      prefs.getBool('hasSelectedLanguage') ?? false;
   final authService = AuthService();
   await authService.initGoogle();
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ur'),
-        Locale('ar'),
-        Locale('pt'),
-        Locale('zh'),
-        Locale('ru'),
-        Locale('es'),
-        Locale('fr'),
-        Locale('de'),
-        // new languages
-        Locale('hi'),
-        Locale('th'),
-        Locale('vi'),
-        Locale('bn'),
-        Locale('fa'),
-        Locale('pl'),
-        Locale('id'),
-        Locale('it'),
-        Locale('ko'),
-        Locale('tr'),
-      ],
+      supportedLocales: AppLocales.supportedLocales,
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      child: MyApp(hasSeenOnboarding: hasSeenOnboarding),
+      child: MyApp(
+        hasSeenOnboarding: hasSeenOnboarding,
+        hasSelectedLanguage: hasSelectedLanguage,
+      ),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final bool hasSeenOnboarding;
-
-  const MyApp({super.key, required this.hasSeenOnboarding});
+  final bool hasSelectedLanguage;
+  const MyApp({
+    super.key,
+    required this.hasSeenOnboarding,
+    required this.hasSelectedLanguage,
+  });
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -107,7 +101,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AnalyticsProvider()..listenAnalytics(),
         ),
-        // Providers com Dependências (ProxyProviders)
+        // Providers with Dependencies (ProxyProviders)
         StreamProvider<User?>(
           create: (context) => context.read<AuthService>().authStateChanges,
           initialData: null,
@@ -147,7 +141,8 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, child) {
           final appRouter = AppRouter(
             authService: context.read<AuthService>(),
-            hasSeenOnboarding: hasSeenOnboarding,
+            hasSeenOnboarding: widget.hasSeenOnboarding,
+            hasSelectedLanguage: widget.hasSelectedLanguage,
           );
 
           return ScreenUtilInit(

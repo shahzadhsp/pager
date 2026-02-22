@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:myapp/screens/language/language_setting_screen.dart';
+import 'package:myapp/screens/splash/splash_screen.dart';
 // Importar os novos ecrãs de admin
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_user_management_screen.dart';
@@ -14,7 +15,6 @@ import '../screens/admin/admin_uplink_feed_screen.dart';
 import '../screens/admin/admin_group_management_screen.dart';
 import '../screens/admin/admin_create_group_screen.dart';
 import '../screens/admin/admin_group_detail_screen.dart';
-
 // Outros imports
 import '../screens/device_screen.dart';
 import '../screens/chat/conversation_list_screen.dart';
@@ -31,7 +31,6 @@ import '../screens/register_screen.dart';
 import '../screens/scan_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/faq_screen.dart';
-
 import '../services/auth_service.dart';
 
 class _GoRouterRefreshStream extends ChangeNotifier {
@@ -52,13 +51,27 @@ class _GoRouterRefreshStream extends ChangeNotifier {
 class AppRouter {
   final AuthService authService;
   final bool hasSeenOnboarding;
+  final bool hasSelectedLanguage;
 
-  AppRouter({required this.authService, required this.hasSeenOnboarding});
+  AppRouter({
+    required this.authService,
+    required this.hasSeenOnboarding,
+    required this.hasSelectedLanguage,
+  });
 
   late final GoRouter router = GoRouter(
-    initialLocation: hasSeenOnboarding ? '/' : '/onboarding',
+    // initialLocation: hasSeenOnboarding ? '/' : '/splash',
+    initialLocation: '/splash',
     refreshListenable: _GoRouterRefreshStream(authService.authStateChanges),
     routes: <RouteBase>[
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/language',
+        builder: (context, state) => const LanguageSettingsScreen(),
+      ),
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) {
@@ -82,6 +95,7 @@ class AppRouter {
                 builder: (BuildContext context, GoRouterState state) =>
                     const AdminUserManagementScreen(),
               ),
+
               GoRoute(
                 path: 'devices',
                 builder: (BuildContext context, GoRouterState state) =>
@@ -220,21 +234,53 @@ class AppRouter {
         },
       ),
     ],
-    redirect: (BuildContext context, GoRouterState state) {
+    // redirect: (BuildContext context, GoRouterState state) {
+    //   final bool loggedIn = authService.currentUser != null;
+    //   final bool isLoggingIn =
+    //       state.matchedLocation == '/login' ||
+    //       state.matchedLocation == '/register';
+
+    //   if (!hasSeenOnboarding && state.matchedLocation != '/onboarding') {
+    //     return '/onboarding';
+    //   }
+
+    //   if (loggedIn && isLoggingIn) {
+    //     return '/';
+    //   }
+
+    //   if (!loggedIn && !isLoggingIn && state.matchedLocation != '/onboarding') {
+    //     return '/login';
+    //   }
+
+    //   return null;
+    // },
+    redirect: (context, state) {
       final bool loggedIn = authService.currentUser != null;
       final bool isLoggingIn =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
+      // allow splash
+      if (state.matchedLocation == '/splash') {
+        return null;
+      }
+
+      // language
+      if (!hasSelectedLanguage && state.matchedLocation != '/language') {
+        return '/language';
+      }
+
+      // onboarding
       if (!hasSeenOnboarding && state.matchedLocation != '/onboarding') {
         return '/onboarding';
       }
 
+      // auth
       if (loggedIn && isLoggingIn) {
         return '/';
       }
 
-      if (!loggedIn && !isLoggingIn && state.matchedLocation != '/onboarding') {
+      if (!loggedIn && !isLoggingIn) {
         return '/login';
       }
 

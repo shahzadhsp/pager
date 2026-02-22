@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,25 +27,40 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Privacy Policy")),
+      appBar: AppBar(title: Text("privacyPolicy".tr())),
       body: Column(
         children: [
           // 📜 Privacy Policy Text
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                child: const Text('''
-Your Privacy Policy text here...
-1. We collect basic account information.
-2. We do not sell user data.
-3. Messages are stored securely.
-4. Users can request account deletion anytime.
+          //           Expanded(
+          //             child: Padding(
+          //               padding: const EdgeInsets.all(16),
+          //               child: SingleChildScrollView(
+          //                 child: const Text('''
+          // Your Privacy Policy text here...
+          // 1. We collect basic account information.
+          // 2. We do not sell user data.
+          // 3. Messages are stored securely.
+          // 4. Users can request account deletion anytime.
 
-By using this app, you agree to this Privacy Policy.
-                  ''', style: TextStyle(fontSize: 14)),
-              ),
-            ),
+          // By using this app, you agree to this Privacy Policy.
+          //                   ''', style: TextStyle(fontSize: 14)),
+          //               ),
+          //             ),
+          //           ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('privacy_policy.line1'.tr()),
+              SizedBox(height: 10),
+
+              Text('privacy_policy.point1'.tr()),
+              Text('privacy_policy.point2'.tr()),
+              Text('privacy_policy.point3'.tr()),
+              Text('privacy_policy.point4'.tr()),
+
+              SizedBox(height: 12),
+              Text('privacy_policy.footer'.tr()),
+            ],
           ),
           Divider(height: 1),
           // ✅ Checkbox + Agree Button
@@ -62,11 +78,7 @@ By using this app, you agree to this Privacy Policy.
                         });
                       },
                     ),
-                    const Expanded(
-                      child: Text(
-                        "I have read and agree to the Privacy Policy",
-                      ),
-                    ),
+                    Expanded(child: Text("agreePrivacyPolicy".tr())),
                   ],
                 ),
 
@@ -80,7 +92,7 @@ By using this app, you agree to this Privacy Policy.
                             Navigator.pop(context, true);
                           }
                         : null,
-                    child: const Text("I Agree"),
+                    child: Text("iAgree".tr()),
                   ),
                 ),
               ],

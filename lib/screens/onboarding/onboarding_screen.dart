@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/screens/login_screen.dart';
@@ -40,21 +41,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 _isLastPage = index == 2;
               });
             },
-            children: const [
+            children: [
               OnboardingPage(
-                title: 'Connect Instantly',
-                description:
-                    'Manage and communicate with all your devices seamlessly.',
+                title: 'connectInstantly'.tr(),
+                description: 'manageCommunicate'.tr(),
               ),
               OnboardingPage(
-                title: 'Stay in Control',
-                description:
-                    'Monitor status, send commands, and receive real-time alerts.',
+                title: 'stayInControl'.tr(),
+                description: 'controlYourDevices'.tr(),
               ),
               OnboardingPage(
-                title: 'Secure & Reliable',
-                description:
-                    'Your data is protected with end-to-end encryption.',
+                title: 'secureReliable'.tr(),
+                description: 'secureReliableDescription'.tr(),
               ),
             ],
           ),
@@ -66,8 +64,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Botão Pular
                 TextButton(
                   onPressed: _completeOnboarding,
-                  child: const Text(
-                    'Skip',
+                  child: Text(
+                    'skip'.tr(),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -91,8 +89,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 _isLastPage
                     ? TextButton(
                         onPressed: _completeOnboarding,
-                        child: const Text(
-                          'Finish',
+                        child: Text(
+                          'finish'.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -104,8 +102,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut,
                         ),
-                        child: const Text(
-                          'Next',
+                        child: Text(
+                          'next'.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

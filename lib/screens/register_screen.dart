@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -31,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+            child: Text('ok'.tr()),
           ),
         ],
       ),
@@ -66,18 +67,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration successful')),
+            SnackBar(content: Text('registrationSuccessful'.tr())),
           );
           Navigator.pop(context);
         }
 
         print("Registration successful");
       } else {
-        _showErrorDialog('Error', 'Registration failed');
+        _showErrorDialog('error'.tr(), 'registrationFailed'.tr());
       }
     } catch (e) {
       print("Registration exception: $e");
-      _showErrorDialog('Error', 'Something went wrong');
+      _showErrorDialog('error'.tr(), 'someThingWentRong'.tr());
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -92,8 +93,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Create Account',
+        title: Text(
+          'createAccount'.tr(),
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -131,7 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Create Your Account',
+                          'createYourAccount'.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 26.sp,
@@ -141,23 +142,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: 30.h),
                         _inputField(
                           controller: _fullNameController,
-                          label: 'Full Name',
+                          label: 'fullName'.tr(),
                           icon: Icons.person_outline,
                           validator: (v) =>
-                              v!.isEmpty ? 'Enter your name' : null,
+                              v!.isEmpty ? 'enterYourName'.tr() : null,
                         ),
                         SizedBox(height: 16.h),
                         _inputField(
                           controller: _emailController,
-                          label: 'Email',
+                          label: 'email'.tr(),
                           icon: Icons.email_outlined,
                           validator: (v) =>
-                              v!.contains('@') ? null : 'Invalid email',
+                              v!.contains('@') ? null : 'invalidEmail'.tr(),
                         ),
                         SizedBox(height: 16.h),
                         _inputField(
                           controller: _passwordController,
-                          label: 'Password',
+                          label: 'password'.tr(),
                           icon: Icons.lock_outline,
                           obscure: !_isPasswordVisible,
                           suffix: IconButton(
@@ -174,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             },
                           ),
                           validator: (v) =>
-                              v!.length < 6 ? 'Min 6 characters' : null,
+                              v!.length < 6 ? 'minSixCharacters'.tr() : null,
                         ),
 
                         SizedBox(height: 30.h),
@@ -195,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    'Register',
+                                    'register'.tr(),
                                     style: TextStyle(fontSize: 18.sp),
                                   ),
                                 ),
@@ -208,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Already have an account? ',
+                              'alreadyHaveAccount'.tr(),
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14.sp,
@@ -224,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 );
                               },
                               child: Text(
-                                'Login',
+                                'login'.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14.sp,

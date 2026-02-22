@@ -173,7 +173,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.dark_mode),
-          title: const Text('Dark Mode'),
+          title: Text('darkMode'.tr()),
           trailing: Switch(
             value: context.watch<ThemeProvider>().isDark,
             onChanged: (value) {
@@ -189,14 +189,14 @@ class SettingsScreen extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
-          title: const Text('Logout', style: TextStyle(color: Colors.red)),
+          title: Text('logout'.tr(), style: TextStyle(color: Colors.red)),
           onTap: () {
             _analytics.logEvent(name: 'logout_confirmed');
             showDialog(
               context: context,
               builder: (dialogCtx) => AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to logout?'),
+                title: Text('logout'.tr()),
+                content: Text('areYouSureLogout'.tr()),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dialogCtx),
@@ -210,8 +210,8 @@ class SettingsScreen extends StatelessWidget {
                       // 2️⃣ Logout
                       await context.read<AuthService>().signOut();
                     },
-                    child: const Text(
-                      'Logout',
+                    child: Text(
+                      'logout'.tr(),
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
