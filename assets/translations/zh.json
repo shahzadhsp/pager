@@ -275,5 +275,6 @@
     "errorReadingQRCode": "读取二维码时出错。",
     "fullName": "全名",
     "enterYourName": "输入您的姓名",
-    "register": "注册"
+    "register": "注册",
+    "skip": "跳过"
 }

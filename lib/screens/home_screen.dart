@@ -171,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen>
       );
     } else {
       return AppBar(
+        automaticallyImplyLeading: false,
         title: Text('myapp'.tr()),
         actions: [
           IconButton(
@@ -183,18 +184,6 @@ class _HomeScreenState extends State<HomeScreen>
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
           ),
-          // IconButton(
-          //   icon: const Icon(Icons.shopping_cart_outlined),
-          //   tooltip: 'Shopping Cart',
-          //   onPressed: () {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(
-          //         content: Text('shoppingCartComingSoon'.tr()),
-          //         backgroundColor: Colors.blueAccent,
-          //       ),
-          //     );
-          //   },
-          // ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             tooltip: 'Shopping Cart',

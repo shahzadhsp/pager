@@ -275,5 +275,6 @@
     "errorReadingQRCode": "QR kod okunurken hata oluştu.",
     "fullName": "Ad Soyad",
     "enterYourName": "Adınızı girin",
-    "register": "Kaydol"
+    "register": "Kaydol",
+    "skip": "Atla"
 }

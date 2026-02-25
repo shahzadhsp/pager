@@ -277,5 +277,6 @@
     "errorReadingQRCode": "เกิดข้อผิดพลาดในการอ่าน QR Code",
     "fullName": "ชื่อ-นามสกุล",
     "enterYourName": "ป้อนชื่อของคุณ",
-    "register": "ลงทะเบียน"
+    "register": "ลงทะเบียน",
+    "skip": "ข้าม"
 }

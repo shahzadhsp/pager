@@ -275,5 +275,6 @@
     "errorReadingQRCode": "QRコードの読み取り中にエラーが発生しました。",
     "fullName": "氏名",
     "enterYourName": "名前を入力してください",
-    "register": "登録"
+    "register": "登録",
+    "skip": "スキップ"
 }

@@ -275,5 +275,6 @@
     "errorReadingQRCode": "Đã xảy ra lỗi khi đọc mã QR.",
     "fullName": "Họ và tên",
     "enterYourName": "Nhập tên của bạn",
-    "register": "Đăng ký"
+    "register": "Đăng ký",
+    "skip": "Bỏ qua"
 }

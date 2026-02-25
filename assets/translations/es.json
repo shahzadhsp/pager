@@ -275,5 +275,6 @@
     "errorReadingQRCode": "Error al leer el código QR.",
     "fullName": "Nombre completo",
     "enterYourName": "Ingrese su nombre",
-    "register": "Registrarse"
+    "register": "Registrarse",
+    "skip": "Saltar"
 }

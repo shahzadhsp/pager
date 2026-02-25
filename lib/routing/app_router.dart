@@ -60,14 +60,10 @@ class AppRouter {
   });
 
   late final GoRouter router = GoRouter(
-    // initialLocation: hasSeenOnboarding ? '/' : '/splash',
-    initialLocation: '/splash',
+    initialLocation: hasSeenOnboarding ? '/' : '/splash',
+    // initialLocation: '',
     refreshListenable: _GoRouterRefreshStream(authService.authStateChanges),
     routes: <RouteBase>[
-      GoRoute(
-        path: '/splash',
-        builder: (context, state) => const SplashScreen(),
-      ),
       GoRoute(
         path: '/language',
         builder: (context, state) => const LanguageSettingsScreen(),
@@ -234,21 +230,34 @@ class AppRouter {
         },
       ),
     ],
-    // redirect: (BuildContext context, GoRouterState state) {
+
+    // redirect: (context, state) {
     //   final bool loggedIn = authService.currentUser != null;
     //   final bool isLoggingIn =
     //       state.matchedLocation == '/login' ||
     //       state.matchedLocation == '/register';
 
-    //   if (!hasSeenOnboarding && state.matchedLocation != '/onboarding') {
+    //   // stay on splash for 2 seconds
+    //   if (state.matchedLocation == '/splash') {
+    //     return null;
+    //   }
+
+    //   // language
+    //   if (!hasSelectedLanguage) {
+    //     return '/language';
+    //   }
+
+    //   // onboarding
+    //   if (!hasSeenOnboarding) {
     //     return '/onboarding';
     //   }
 
+    //   // auth
     //   if (loggedIn && isLoggingIn) {
     //     return '/';
     //   }
 
-    //   if (!loggedIn && !isLoggingIn && state.matchedLocation != '/onboarding') {
+    //   if (!loggedIn && !isLoggingIn) {
     //     return '/login';
     //   }
 
@@ -260,28 +269,25 @@ class AppRouter {
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
-      // allow splash
-      if (state.matchedLocation == '/splash') {
-        return null;
-      }
-
-      // language
+      // LANGUAGE CHECK
       if (!hasSelectedLanguage && state.matchedLocation != '/language') {
         return '/language';
       }
 
-      // onboarding
-      if (!hasSeenOnboarding && state.matchedLocation != '/onboarding') {
+      // ONBOARDING CHECK
+      if (hasSelectedLanguage &&
+          !hasSeenOnboarding &&
+          state.matchedLocation != '/onboarding') {
         return '/onboarding';
       }
 
-      // auth
-      if (loggedIn && isLoggingIn) {
-        return '/';
-      }
-
+      // AUTH CHECK
       if (!loggedIn && !isLoggingIn) {
         return '/login';
+      }
+
+      if (loggedIn && isLoggingIn) {
+        return '/';
       }
 
       return null;

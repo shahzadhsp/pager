@@ -275,5 +275,6 @@
     "errorReadingQRCode": "Terjadi kesalahan saat membaca QR code.",
     "fullName": "Nama lengkap",
     "enterYourName": "Masukkan nama Anda",
-    "register": "Daftar"
+    "register": "Daftar",
+    "skip": "Lewati"
 }

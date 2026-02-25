@@ -2,11 +2,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
-import 'dart:async';
-import 'package:battery_plus/battery_plus.dart';
-
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class DBHelper {
   static Database? _db;

@@ -1,109 +1,112 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:myapp/models/language_model.dart';
-import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/onboarding/onboarding_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:country_flags/country_flags.dart';
 
-class LanguageSettingsScreen extends StatelessWidget {
+class LanguageSettingsScreen extends StatefulWidget {
   const LanguageSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<AppLanguage> languages = [
-      AppLanguage('English', const Locale('en')),
-      AppLanguage('اردو', const Locale('ur')),
-      AppLanguage('العربية', const Locale('ar')),
-      AppLanguage('Português', const Locale('pt')),
-      AppLanguage('Chinese', const Locale('zh')),
-      AppLanguage('Russia', const Locale('ru')),
-      AppLanguage('Spanish', const Locale('es')),
-      AppLanguage('French', const Locale('fr')),
-      AppLanguage('Deutsch', const Locale('de')),
-      // new languages
-      AppLanguage('Hindi', const Locale('hi')),
-      AppLanguage('Thai', const Locale('th')),
-      AppLanguage('Vietnamese', const Locale('vi')),
-      AppLanguage('Bengali', const Locale('bn')),
-      AppLanguage('Persian', const Locale('fa')),
-      AppLanguage('Polish', const Locale('pl')),
-      AppLanguage('Persian', const Locale('fa')),
-      AppLanguage('Indonesian', const Locale('id')),
-      AppLanguage('Italian', const Locale('it')),
-      AppLanguage('Korean', const Locale('ko')),
-      AppLanguage('Turkish', const Locale('tr')),
-    ];
+  State<LanguageSettingsScreen> createState() => _LanguageSettingsScreenState();
+}
 
+class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
+  /// stores selected language locally
+  Locale? _selectedLocale;
+  final Map<String, String> languageFlags = {
+    'en': 'US', // 🇺🇸 United States
+    'ur': 'PK', // 🇵🇰 Pakistan
+    'ar': 'SA', // 🇸🇦 Saudi Arabia
+    'pt': 'PT', // 🇵🇹 Portugal
+    'zh': 'CN', // 🇨🇳 China
+    'ru': 'RU', // 🇷🇺 Russia
+    'es': 'ES', // 🇪🇸 Spain
+    'fr': 'FR', // 🇫🇷 France
+    'de': 'DE', // 🇩🇪 Germany
+    'hi': 'IN', // 🇮🇳 India
+    'th': 'TH', // 🇹🇭 Thailand
+    'vi': 'VN', // 🇻🇳 Vietnam
+    'bn': 'BD', // 🇧🇩 Bangladesh
+    'fa': 'IR', // 🇮🇷 Iran
+    'pl': 'PL', // 🇵🇱 Poland
+    'id': 'ID', // 🇮🇩 Indonesia
+    'it': 'IT', // 🇮🇹 Italy
+    'ko': 'KR', // 🇰🇷 South Korea
+    'tr': 'TR', // 🇹🇷 Turkey
+  };
+  final List<AppLanguage> languages = [
+    AppLanguage('English', const Locale('en')),
+    AppLanguage('اردو', const Locale('ur')),
+    AppLanguage('العربية', const Locale('ar')),
+    AppLanguage('Português', const Locale('pt')),
+    AppLanguage('Chinese', const Locale('zh')),
+    AppLanguage('Russia', const Locale('ru')),
+    AppLanguage('Spanish', const Locale('es')),
+    AppLanguage('French', const Locale('fr')),
+    AppLanguage('Deutsch', const Locale('de')),
+    AppLanguage('Hindi', const Locale('hi')),
+    AppLanguage('Thai', const Locale('th')),
+    AppLanguage('Vietnamese', const Locale('vi')),
+    AppLanguage('Bengali', const Locale('bn')),
+    AppLanguage('Persian', const Locale('fa')),
+    AppLanguage('Polish', const Locale('pl')),
+    AppLanguage('Indonesian', const Locale('id')),
+    AppLanguage('Italian', const Locale('it')),
+    AppLanguage('Korean', const Locale('ko')),
+    AppLanguage('Turkish', const Locale('tr')),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
         title: Text('language'.tr()),
-        // actions: [
-        //   IconButton(
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(builder: (context) => const LoginScreen()),
-        //       );
-        //     },
-        //     icon: Icon(Icons.check),
-        //   ),
-        // ],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            // Disabled until a language is selected
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OnboardingScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
+
       body: ListView.builder(
         itemCount: languages.length,
         itemBuilder: (context, index) {
           final lang = languages[index];
-          final isSelected = context.locale == lang.locale;
+
+          final isSelected =
+              _selectedLocale == lang.locale || context.locale == lang.locale;
 
           return ListTile(
+            leading: CountryFlag.fromCountryCode(
+              languageFlags[lang.locale.languageCode] ?? 'US',
+            ),
+
             title: Text(lang.title),
+
             trailing: isSelected
                 ? const Icon(Icons.check, color: Colors.green)
                 : null,
 
-            // onTap: () async {
-            //   await context.setLocale(lang.locale);
-
-            //   final prefs = await SharedPreferences.getInstance();
-            //   await prefs.setBool('hasSelectedLanguage', true);
-
-            //   if (context.mounted) {
-            //     // context.go('/onboarding');
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => const OnboardingScreen(),
-            //       ),
-            //     );
-            //   }
-            // },
             onTap: () async {
-              // 1️⃣ Set selected language
+              // change language only
               await context.setLocale(lang.locale);
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('hasSelectedLanguage', true);
-              if (!context.mounted) return;
-              // 2️⃣ Check if user is already logged in
-              final isLoggedIn = FirebaseAuth.instance.currentUser != null;
 
-              if (isLoggedIn) {
-                // Already logged in → go to HomeScreen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeScreen(isAdmin: false),
-                  ),
-                );
-              } else {
-                // Not logged in → go to Onboarding/Login
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  ),
-                );
-              }
+              // update UI selection
+              setState(() {
+                _selectedLocale = lang.locale;
+              });
             },
           );
         },

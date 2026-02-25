@@ -275,5 +275,6 @@
     "errorReadingQRCode": "Ошибка при чтении QR-кода.",
     "fullName": "Полное имя",
     "enterYourName": "Введите ваше имя",
-    "register": "Регистрация"
+    "register": "Регистрация",
+    "skip": "Пропустить"
 }

@@ -275,5 +275,6 @@
     "errorReadingQRCode": "خطا در خواندن کد QR.",
     "fullName": "نام کامل",
     "enterYourName": "نام خود را وارد کنید",
-    "register": "ثبت نام"
+    "register": "ثبت نام",
+    "skip": "رد کردن"
 }

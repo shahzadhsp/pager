@@ -51,10 +51,11 @@ dependencies:
   flutter_map: ^8.2.2
   easy_localization: ^3.0.8
   flutter_screenutil: ^5.9.3
-  battery_plus: ^7.0.0
+  battery_plus: ^6.0.2
   firebase_analytics: ^12.1.1
   webview_flutter: ^4.13.1
   flutter_launcher_icons: ^0.14.4
+  country_flags: ^4.1.2
 
   
 

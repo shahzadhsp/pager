@@ -275,5 +275,6 @@
     "errorReadingQRCode": "کیو آر کوڈ پڑھنے میں خرابی ہوئی۔",
     "fullName": "پورا نام",
     "enterYourName": "اپنا نام درج کریں",
-    "register": "رجسٹر کریں"
+    "register": "رجسٹر کریں",
+    "skip": "چھوڑ دیں"
 }

@@ -275,5 +275,6 @@
     "errorReadingQRCode": "QR कोड पढ़ने में त्रुटि।",
     "fullName": "पूरा नाम",
     "enterYourName": "अपना नाम दर्ज करें",
-    "register": "पंजीकरण"
+    "register": "पंजीकरण",
+    "skip": "छोड़ें"
 }
